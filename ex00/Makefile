@@ -1,5 +1,5 @@
-NAME = bit
-SOURCES = main.cpp
+NAME = btc
+SOURCES = main.cpp BitcoinExchange.cpp
 		
 OBJS = $(SOURCES:.cpp=.o)
 
