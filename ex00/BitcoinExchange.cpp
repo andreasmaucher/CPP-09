@@ -1,4 +1,5 @@
 #include "BitcoinExchange.hpp"
+#include <cstdlib>
 
 BitcoinExchange::BitcoinExchange(const std::string& dbFile) {
     loadDatabase(dbFile);
@@ -7,7 +8,7 @@ BitcoinExchange::BitcoinExchange(const std::string& dbFile) {
 BitcoinExchange::~BitcoinExchange() {}
 
 void BitcoinExchange::loadDatabase(const std::string& filename) {
-    std::ifstream file(filename);
+    std::ifstream file(filename.c_str());
     if (!file.is_open()) {
         throw std::runtime_error("Error: could not open file.");
     }
@@ -22,7 +23,7 @@ void BitcoinExchange::loadDatabase(const std::string& filename) {
         
         if (std::getline(ss, date, ',') && std::getline(ss, value)) {
             try {
-                float rate = std::stof(value);
+                float rate = static_cast<float>(std::atof(value.c_str()));
                 database[date] = rate;
             } catch (const std::exception& e) {
                 std::cerr << "Warning: Invalid rate in database for date: " << date << std::endl;
@@ -32,30 +33,30 @@ void BitcoinExchange::loadDatabase(const std::string& filename) {
 }
 
 std::pair<bool, std::string> BitcoinExchange::parseDate(const std::string& date) const {
-    if (date.length() != 10) return {false, "Invalid date format"};
+    if (date.length() != 10) return std::make_pair(false, "Invalid date format");
     
     try {
-        int year = std::stoi(date.substr(0, 4));
-        int month = std::stoi(date.substr(5, 2));
-        int day = std::stoi(date.substr(8, 2));
+        int year = std::atoi(date.substr(0, 4).c_str());
+        int month = std::atoi(date.substr(5, 2).c_str());
+        int day = std::atoi(date.substr(8, 2).c_str());
 
-        if (date[4] != '-' || date[7] != '-') return {false, "Invalid date format"};
-        if (month < 1 || month > 12) return {false, "Invalid month"};
-        if (day < 1 || day > 31) return {false, "Invalid day"};
-        if (year < 2009) return {false, "Date before Bitcoin's creation"};
+        if (date[4] != '-' || date[7] != '-') return std::make_pair(false, "Invalid date format");
+        if (month < 1 || month > 12) return std::make_pair(false, "Invalid month");
+        if (day < 1 || day > 31) return std::make_pair(false, "Invalid day");
+        if (year < 2009) return std::make_pair(false, "Date before Bitcoin's creation");
 
         // Basic month length validation
         if ((month == 4 || month == 6 || month == 9 || month == 11) && day > 30)
-            return {false, "Invalid day for month"};
+            return std::make_pair(false, "Invalid day for month");
         if (month == 2) {
             bool isLeap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
             if ((isLeap && day > 29) || (!isLeap && day > 28))
-                return {false, "Invalid day for February"};
+                return std::make_pair(false, "Invalid day for February");
         }
 
-        return {true, ""};
+        return std::make_pair(true, "");
     } catch (const std::exception& e) {
-        return {false, "Invalid date format"};
+        return std::make_pair(false, "Invalid date format");
     }
 }
 
@@ -68,7 +69,7 @@ bool BitcoinExchange::isValidValue(const float value) const {
 }
 
 std::string BitcoinExchange::findClosestDate(const std::string& date) const {
-    auto it = database.upper_bound(date);
+    std::map<std::string, float>::const_iterator it = database.upper_bound(date);
     if (it == database.begin()) {
         return it->first;
     }
@@ -77,7 +78,7 @@ std::string BitcoinExchange::findClosestDate(const std::string& date) const {
 }
 
 void BitcoinExchange::processInputFile(const std::string& inputFile) {
-    std::ifstream file(inputFile);
+    std::ifstream file(inputFile.c_str());
     if (!file.is_open()) {
         std::cout << "Error: could not open file." << std::endl;
         return;
@@ -100,7 +101,7 @@ void BitcoinExchange::processInputFile(const std::string& inputFile) {
             valueStr.erase(valueStr.find_last_not_of(" \t") + 1);
 
             // Validate date
-            auto dateValidation = parseDate(date);
+            std::pair<bool, std::string> dateValidation = parseDate(date);
             if (!dateValidation.first) {
                 std::cout << "Error: bad input => " << date << std::endl;
                 continue;
@@ -109,7 +110,7 @@ void BitcoinExchange::processInputFile(const std::string& inputFile) {
             // Validate value
             float value;
             try {
-                value = std::stof(valueStr);
+                value = static_cast<float>(std::atof(valueStr.c_str()));
                 if (!isValidValue(value)) {
                     if (value < 0)
                         std::cout << "Error: not a positive number." << std::endl;
