@@ -65,7 +65,7 @@ bool BitcoinExchange::isValidDate(const std::string& date) const {
 }
 
 bool BitcoinExchange::isValidValue(const float value) const {
-    return value >= 0 && value <= 1000;
+    return value >= 0;
 }
 
 std::string BitcoinExchange::findClosestDate(const std::string& date) const {
@@ -90,10 +90,9 @@ void BitcoinExchange::processInputFile(const std::string& inputFile) {
     while (std::getline(file, line)) {
         std::stringstream ss(line);
         std::string date;
-        std::string separator;
         std::string valueStr;
 
-        if (std::getline(ss, date, '|') && std::getline(ss, valueStr)) {
+        if (std::getline(ss, date, ',') && std::getline(ss, valueStr)) {
             // Trim whitespace
             date.erase(0, date.find_first_not_of(" \t"));
             date.erase(date.find_last_not_of(" \t") + 1);
