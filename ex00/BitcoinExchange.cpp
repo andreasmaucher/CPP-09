@@ -14,7 +14,7 @@ void BitcoinExchange::loadDatabase(const std::string& filename) {
     }
 
     std::string line;
-    std::getline(file, line); // Skip header line
+    std::getline(file, line);
 
     while (std::getline(file, line)) {
         std::stringstream ss(line);
