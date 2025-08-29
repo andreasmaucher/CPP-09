@@ -6,6 +6,7 @@
 #include <fstream> // for reading the data.csv file
 #include <iostream>
 #include <sstream> // for parsing the csv file (like splitting data by comma)
+#include <cstdlib> // for std::atof()
 
 class BitcoinExchange 
 {

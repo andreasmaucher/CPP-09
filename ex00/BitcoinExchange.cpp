@@ -1,5 +1,4 @@
 #include "BitcoinExchange.hpp"
-#include <cstdlib>
 
 BitcoinExchange::BitcoinExchange(const std::string& dbFile) {
     loadDatabase(dbFile);
