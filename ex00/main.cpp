@@ -4,7 +4,7 @@ int main(int ac, char **av)
 {
     if (ac != 2) 
     {
-        std::cout << "Error: could not open file." << std::endl;
+        std::cout << "Error: could not open file. Expected input: <./btc data.csv>" << std::endl;
         return 1;
     }
 

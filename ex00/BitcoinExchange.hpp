@@ -1,13 +1,11 @@
 #ifndef BITCOINEXCHANGE_HPP
 #define BITCOINEXCHANGE_HPP
 
-#include <map>
+#include <map> // to store the btc exchange rates
 #include <string>
-#include <fstream>
+#include <fstream> // for reading the data.csv file
 #include <iostream>
-#include <sstream>
-#include <ctime>
-#include <iomanip>
+#include <sstream> // for parsing the csv file (like splitting data by comma)
 
 class BitcoinExchange 
 {
