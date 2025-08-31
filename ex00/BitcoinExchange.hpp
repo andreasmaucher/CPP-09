@@ -11,7 +11,7 @@
 class BitcoinExchange 
 {
     private:
-        std::map<std::string, float> database;
+        std::map<std::string, float> database; // declaring single container used for this exercise
         
         bool isValidDate(const std::string& date) const;
         bool isValidValue(const float value) const;
@@ -20,7 +20,7 @@ class BitcoinExchange
         std::pair<bool, std::string> parseDate(const std::string& date) const;
 
     public:
-        BitcoinExchange(const std::string& dbFile);
+        BitcoinExchange(const std::string& datacsv);
         ~BitcoinExchange();
 
         void processInputFile(const std::string& inputFile);
