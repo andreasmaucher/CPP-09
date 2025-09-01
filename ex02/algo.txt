@@ -1,0 +1,55 @@
+write it on whiteboard
+comparison of differences between both container functions
+
+Step-by-Step Thought Process
+Phase 1: Understanding the Problem
+Question: How do we approach implementing Ford-Johnson?
+Answer: Break it down into these conceptual steps:
+Pair Creation: Group elements into pairs
+Pair Sorting: Sort pairs by their larger elements
+Chain Building: Create a sorted "main chain"
+Element Insertion: Insert remaining elements efficiently
+Phase 2: Algorithm Design
+Let me walk through an example: [3, 5, 9, 7, 4]
+Step 1: Create Pairs
+Step 2: Sort Pairs by Larger Elements
+Step 3: Build Main Chain
+Step 4: Insert Remaining Elements
+Phase 3: Implementation Strategy
+Container Choice
+Why two containers?
+std::vector: Fast random access, good for binary search
+std::deque: Fast insertion at ends, different memory layout
+Performance comparison: See which is more efficient
+Data Structure Design
+Phase 4: Algorithm Implementation
+Core Functions Needed:
+createPairs()
+sortPairs()
+buildMainChain()
+insertRemaining()
+Phase 5: Binary Search Implementation
+Why binary search?
+Efficiency: O(log n) instead of O(n) for linear search
+Ford-Johnson requirement: Algorithm specifically uses binary insertion
+Implementation:
+Phase 6: Performance Measurement
+Timing Strategy:
+Why microseconds?
+Precision: Need to see differences between containers
+Accuracy: Small enough to measure algorithm performance
+Phase 7: Error Handling
+Validation Requirements:
+Positive integers only: No negative numbers or zero
+Valid format: All characters must be digits
+Argument count: At least one argument required
+Error Output:
+Why This Algorithm is Special
+Comparison Efficiency:
+Ford-Johnson: Minimizes comparisons for small sequences
+Binary insertion: O(log n) insertion complexity
+Pair strategy: Reduces total number of comparisons needed
+Real-World Applications:
+Network routing: Efficient sorting of small datasets
+Embedded systems: Memory-efficient sorting
+Competitive programming: Optimized comparison-based sorting
