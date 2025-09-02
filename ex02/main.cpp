@@ -13,7 +13,8 @@ int main(int ac, char **av)
     {
         // create PmergeMe object and process the sequence
         PmergeMe sorter;
-        sorter.processSequence(ac, av);
+        (void) av;
+        //sorter.processSequence(ac, av);
     } 
     catch (const std::exception& e) 
     {

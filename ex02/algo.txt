@@ -1,6 +1,22 @@
 write it on whiteboard
 comparison of differences between both container functions
 
+Input:
+- positive input sequences (need to handle > 3000 ints)
+- use merge-insert algo to sort the positive integer sequence -> Ford-Johnson algorithm
+
+Jacobsthal number:
+- sequence starts with 0 and 1 then each following number is found by adding the number before it to twice the number before that
+- 0 1 1 3 5 11..
+
+
+Eval:
+- why each container is faster / slower and understanding the exact container operations (incl. memory)
+- behavior for larger sets like 100, 1000, 3000
+- no duplicate checking as algo works with duplicates and checking would add extra load and make it slower
+- it needs to use recursion! (it works iterative but algo requires recursion!)
+- the process of binary search
+
 Step-by-Step Thought Process
 Phase 1: Understanding the Problem
 Question: How do we approach implementing Ford-Johnson?

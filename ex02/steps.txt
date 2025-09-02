@@ -1,0 +1,74 @@
+Step 1: Understanding the Basic Problem
+Start Simple: Just Sort Numbers
+Exercise 1: Create a simple program that:
+Takes command line arguments
+Validates they're positive integers
+Uses std::sort to sort them
+Displays before/after
+Learning Goal: Understand basic input/output and validation.
+Step 2: Understanding Pairs
+Concept: What are Pairs?
+Exercise 2: Create a function that:
+Takes a vector of numbers
+Creates pairs from consecutive elements
+Handles odd-length sequences
+Returns pairs and remaining elements
+Learning Goal: Understand how Ford-Johnson groups elements.
+Step 3: Understanding Pair Sorting
+Concept: Sort by Larger Elements
+Exercise 3: Create a function that:
+Takes pairs of numbers
+Sorts them by the larger (second) element
+Returns sorted pairs
+Learning Goal: Understand why we sort by larger elements.
+Step 4: Understanding Binary Search
+Concept: Finding Insertion Position
+Exercise 4: Create a binary search function that:
+Takes a sorted array and a value
+Returns the position where the value should be inserted
+Uses recursion (as required)
+Learning Goal: Understand efficient insertion positioning.
+Step 5: Understanding Main Chain Building
+Concept: Building the Sorted Sequence
+Exercise 5: Create a function that:
+Starts with the first pair
+For each remaining pair:
+Inserts the larger element using binary search
+Inserts the smaller element using binary search
+Returns the sorted chain
+Learning Goal: Understand the core insertion logic.
+Step 6: Understanding Jacobsthal Sequence
+Concept: Optimal Insertion Order
+Exercise 6: Create a function that:
+Generates Jacobsthal numbers
+Creates optimal insertion sequence
+Returns the order for inserting smaller elements
+Learning Goal: Understand the mathematical optimization.
+Step 7: Understanding Recursion
+Concept: Divide and Conquer
+Exercise 7: Modify your sorting to:
+Use recursion for pair sorting
+Use recursion for binary search
+Use recursion for chain building
+Learning Goal: Understand recursive algorithm structure.
+Step 8: Understanding Container Differences
+Concept: Vector vs Deque
+Exercise 8: Implement the algorithm for both:
+std::vector<int>
+std::deque<int>
+Compare performance differences
+Learning Goal: Understand container performance characteristics.
+Step 9: Understanding Performance Measurement
+Concept: Accurate Timing
+Exercise 9: Add timing measurement that:
+Measures total processing time
+Shows microsecond precision
+Compares both containers
+Learning Goal: Understand performance analysis.
+Step 10: Understanding Error Handling
+Concept: Robust Input Validation
+Exercise 10: Add comprehensive error handling:
+Validate all inputs
+Handle edge cases
+Provide clear error messages
+Learning Goal: Understand production-ready code.
