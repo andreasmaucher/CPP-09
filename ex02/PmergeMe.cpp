@@ -158,6 +158,54 @@ void PmergeMe::sortPairsRecursively(std::vector<std::pair<int, int> >& pairs, in
     sortPairsRecursively(pairs, recursionDepth + 1);
 }
 
+// Utility function to print sequences
+void PmergeMe::printSequence(const std::string& label, const std::vector<int>& sequence) const {
+    DEBUG(label);
+    for (size_t i = 0; i < sequence.size(); ++i) {
+        std::cout << sequence[i];
+        if (i < sequence.size() - 1) {
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+void PmergeMe::printSequence(const std::string& label, const std::deque<int>& sequence) const {
+    DEBUG(label);
+    for (size_t i = 0; i < sequence.size(); ++i) {
+        std::cout << sequence[i];
+        if (i < sequence.size() - 1) {
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+}
+
+// Utility function to reconstruct containers from pairs
+void PmergeMe::reconstructContainers(const std::vector<std::pair<int, int> >& pairs, const std::vector<int>& remaining) {
+    // Clear and rebuild vector container
+    vecNumbers.clear();
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        vecNumbers.push_back(pairs[i].first);
+        vecNumbers.push_back(pairs[i].second);
+    }
+    if (!remaining.empty()) {
+        vecNumbers.push_back(remaining[0]);
+    }
+    
+    // Clear and rebuild deque container
+    deqNumbers.clear();
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        deqNumbers.push_back(pairs[i].first);
+        deqNumbers.push_back(pairs[i].second);
+    }
+    if (!remaining.empty()) {
+        deqNumbers.push_back(remaining[0]);
+    }
+    
+    DEBUG("Containers updated with sorted sequence");
+}
+
 // main function that organizes the whole algo
 void PmergeMe::runAlgo(int ac, char **av) 
 {
@@ -172,16 +220,24 @@ void PmergeMe::runAlgo(int ac, char **av)
     
     // Display sorted pairs
     std::cout << std::endl;
-    DEBUG("->>> Sorted sequence after recursion: ");
-    for (size_t i = 0; i < pairs.size(); ++i) {
-        std::cout << "(" << pairs[i].first << "," << pairs[i].second << ")";
-        if (i < pairs.size() - 1) {
-            std::cout << " ";
+    // Add remaining element back to the sequence (there's always at most 1)
+    if (!remaining.empty()) {
+        DEBUG("Adding remaining element back to sequence: " << remaining[0]);
+        
+        DEBUG("->>> Sorted sequence after recursion: ");
+        for (size_t i = 0; i < pairs.size(); ++i) {
+            std::cout << "(" << pairs[i].first << "," << pairs[i].second << ")";
+            if (i < pairs.size() - 1) {
+                std::cout << " ";
+            }
         }
+        std::cout << " " << remaining[0] << std::endl;
     }
-    std::cout << std::endl;
     
-    // Clear containers for next test
-    vecNumbers.clear();
-    deqNumbers.clear();
+    // Reconstruct the original containers with the updated sequence
+    reconstructContainers(pairs, remaining);
+    
+    // Print the content of both containers
+    printSequence("Vector container content: ", vecNumbers);
+    printSequence("Deque container content: ", deqNumbers);
 }

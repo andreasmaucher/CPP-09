@@ -37,6 +37,12 @@ class PmergeMe
         // Step 1: Main function to test pair creation
         void runAlgo(int ac, char **av);
 
+        // Utility function to print sequences
+        void printSequence(const std::string& label, const std::vector<int>& sequence) const;
+        void printSequence(const std::string& label, const std::deque<int>& sequence) const;
+        
+        // Utility function to reconstruct containers from pairs
+        void reconstructContainers(const std::vector<std::pair<int, int> >& pairs, const std::vector<int>& remaining);
 };
 
 #endif
