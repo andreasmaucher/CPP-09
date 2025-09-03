@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <ctime>
-#include <algorithm> // for std::sort and other algorithms
+#include <algorithm>
 #include <stdexcept>
 
 class PmergeMe 
@@ -19,10 +19,19 @@ class PmergeMe
         // private helper methods
         bool isValidNumber(const std::string& str) const;
         void parseArguments(int ac, char **av);
+        
+        void createPairs(std::vector<std::pair<int, int> >& pairs, std::vector<int>& remaining) const;
+        void sortPairs(std::vector<std::pair<int, int> >& pairs) const;
+
+        // needed for recursive sorting
+        std::vector<int> extractLargerElements(const std::vector<std::pair<int, int> >& pairs) const;
 
     public:
         PmergeMe();
         ~PmergeMe();
+        
+        void simpleSort(int ac, char **av);
+        void testPairs(int ac, char **av);
 
 };
 

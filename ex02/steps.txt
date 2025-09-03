@@ -6,6 +6,7 @@ Validates they're positive integers
 Uses std::sort to sort them
 Displays before/after
 Learning Goal: Understand basic input/output and validation.
+
 Step 2: Understanding Pairs
 Concept: What are Pairs?
 Exercise 2: Create a function that:
@@ -14,6 +15,7 @@ Creates pairs from consecutive elements
 Handles odd-length sequences
 Returns pairs and remaining elements
 Learning Goal: Understand how Ford-Johnson groups elements.
+
 Step 3: Understanding Pair Sorting
 Concept: Sort by Larger Elements
 Exercise 3: Create a function that:
@@ -21,6 +23,7 @@ Takes pairs of numbers
 Sorts them by the larger (second) element
 Returns sorted pairs
 Learning Goal: Understand why we sort by larger elements.
+
 Step 4: Understanding Binary Search
 Concept: Finding Insertion Position
 Exercise 4: Create a binary search function that:
