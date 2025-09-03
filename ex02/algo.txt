@@ -17,6 +17,18 @@ Eval:
 - it needs to use recursion! (it works iterative but algo requires recursion!)
 - the process of binary search
 - is it ok that my larger elements start with highest and go down???
+The temporary containers are used for the recursive sorting phase (which is the same for both), but the final insertion phase uses the original container type, creating the measurable difference.
+Bottom line: The temporary containers don't eliminate the performance differences - they just make the algorithm more efficient while still allowing you to measure the container-specific performance characteristics.
+
+
+Explanation of sorting recursively:
+this is sequence with sorted pairs: (2,11) (0,17) (8,16) (6,15) (3,10) (1,21) (9,18) (14,19) (5,12) (4,20) (7,13)
+
+next we combine two consecutive pairs e.g. (2,11) (0,17) belong together, same as  (8,16) (6,15). in this step we compare the second numbers (since it is sorted this will always be the higher number) of each pair that it is grouped with. This looks as follows: for  (2,11) (0,17) we compare 11 vs 17 since 17 is higher no change in order. but for (8,16) (6,15) since 15 < 16 we switch the order of the pairs to (6,15) (8,16). so the new order of the full sequence would be (2,11) (0,17)(6,15) (8,16) and so on. the pair in the end (7 13) has no pair to team up with so it will simply stay at the end of the sequence for now.
+The next recursion level would then be to group 4 pairs into one "pair" and compare the higher number of the second pair of each double pair. e.g. (2,11) (0,17)(6,15) (8,16) would become (6,15) (8,16)(2,11) (0,17) because 17 > 16. the same logic applies to the full sequence. in this recursion run (5 12 ) (4 20) will not be able to grouped up with another double pair so they will simply keep their positions in the sequence same as (7 13). 
+Now the next recursion level would be 8 pairs grouped together where 4 pairs make of a subgroup and always the last value of the subgroup will be compared. in this case this would be 6,15) (8,16)(2,11) (0,17) compared with (9, 18) (14, 19) (3, 10) (1, 21). since 17 < 21 the order will remain the same. 
+There is nothing to be done at the level 5 of recursion: because the amount of numbers in the element doubles with each recursion call, at one point we won't be able to form a pair of elements. This is where we break from this level. 
+
 
 Step-by-Step Thought Process
 Phase 1: Understanding the Problem

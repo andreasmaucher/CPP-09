@@ -17,10 +17,11 @@ bool PmergeMe::isValidNumber(const std::string& str) const {
             return false;
         }
     }
+    // ADD AGAIN IN THE END SUBJECT SAYS POSITIVE AND ZERO IS NOT???
     // Check if number is positive (not zero)
-    if (str == "0") {
+    /* if (str == "0") {
         return false;
-    }
+    } */
     return true;
 }
 
@@ -36,15 +37,8 @@ void PmergeMe::parseArguments(int ac, char **av) {
         vecNumbers.push_back(num);
         deqNumbers.push_back(num);
     }
-}
-
-// Step 1: first check that the input is valid and then sort the int sequence 
-void PmergeMe::simpleSort(int ac, char **av) {
-    // parse and validate arguments
-    parseArguments(ac, av);
-    
-    // display the original sequence
-    std::cout << "Before: ";
+    // Display the original sequence
+    DEBUG("Starting sequence: ");
     for (size_t i = 0; i < vecNumbers.size(); ++i) {
         std::cout << vecNumbers[i];
         if (i < vecNumbers.size() - 1) {
@@ -52,208 +46,42 @@ void PmergeMe::simpleSort(int ac, char **av) {
         }
     }
     std::cout << std::endl;
-    
-    std::sort(vecNumbers.begin(), vecNumbers.end());
-    
-    std::cout << "After: ";
-    for (size_t i = 0; i < vecNumbers.size(); ++i) {
-        std::cout << vecNumbers[i];
-        if (i < vecNumbers.size() - 1) {
-            std::cout << " ";
-        }
-    }
-    std::cout << std::endl;
-    
-    vecNumbers.clear();
-    deqNumbers.clear();
 }
 
-// Step 2: Create pairs from consecutive elements
-void PmergeMe::createPairs(std::vector<std::pair<int, int> >& pairs, std::vector<int>& remaining) const {
+// Step 1: Create pairs from consecutive elements
+void PmergeMe::createPairs(std::vector<std::pair<int, int> >& pairs, std::vector<int>& remaining) const 
+{
     pairs.clear();
     remaining.clear();
     
-    // store two numbers in temp variables
+    DEBUG("Creating pairs from " << vecNumbers.size() << " elements...");
+
+    // Create pairs from consecutive elements
     for (size_t i = 0; i < vecNumbers.size() - 1; i += 2) {
         int first = vecNumbers[i];
         int second = vecNumbers[i + 1];
         
-        // create a pair with the smaller value first & larger second
+        DEBUG("Creating pair from elements " << i << " and " << (i+1) << ": " << first << " and " << second);
+        
+        // Create a pair with the smaller value first & larger second
         if (first <= second) {
             pairs.push_back(std::make_pair(first, second));
+            DEBUG("Created pair: (" << first << "," << second << ") [no swap needed]");
         } else {
             pairs.push_back(std::make_pair(second, first));
+            DEBUG("Created pair: (" << second << "," << first << ") [swapped]");
         }
     }
     
-    // in case of odd number of ints, the last one goes to remaining
+    // Handle odd number of elements - the last one goes to remaining
     if (vecNumbers.size() % 2 != 0) {
         remaining.push_back(vecNumbers[vecNumbers.size() - 1]);
+        DEBUG("Added remaining element: " << vecNumbers[vecNumbers.size() - 1]);
     }
-}
+    DEBUG("Created " << pairs.size() << " pairs and " << remaining.size() << " remaining elements");
 
-// compare pairs by their larger element which is in second place since the pairs are already sorted
-bool comparePairs(const std::pair<int, int>& a, const std::pair<int, int>& b) {
-    return a.second < b.second;
-}
-
-// extract the larger elements from pairs for recursive sorting -> store every second number of a pair in largerElements
-std::vector<int> PmergeMe::extractLargerElements(const std::vector<std::pair<int, int> >& pairs) const {
-    std::vector<int> largerElements;
-    for (size_t i = 0; i < pairs.size(); ++i) {
-        largerElements.push_back(pairs[i].second);
-    }
-    return largerElements;
-}
-
-void PmergeMe::sortPairs(std::vector<std::pair<int, int> >& pairs) const {
-    // in case of 0 or 1 pair, no sorting needed
-    if (pairs.size() <= 1) {
-        return;
-    }
-    
-    std::cout << "  [DEBUG] Recursive call with " << pairs.size() << " pairs" << std::endl;
-    
-    // extract larger elements from pairs for recursive sorting
-    std::vector<int> largerElements = extractLargerElements(pairs);
-    
-    std::cout << "  [DEBUG] Extracted larger elements: ";
-    for (size_t i = 0; i < largerElements.size(); ++i) {
-        std::cout << largerElements[i] << " ";
-    }
-    std::cout << std::endl;
-    
-    // recursively sort the larger elements using Ford-Johnson
-    if (largerElements.size() > 1) {
-        std::cout << "  [DEBUG] Creating sub-pairs from larger elements..." << std::endl;
-        
-        // create pairs from larger elements
-        std::vector<std::pair<int, int> > subPairs;
-        std::vector<int> subRemaining;
-        
-        // manually create pairs from larger elements
-        for (size_t i = 0; i < largerElements.size() - 1; i += 2) {
-            int first = largerElements[i];
-            int second = largerElements[i + 1];
-            
-            std::cout << "  [DEBUG] Creating sub-pair from elements " << i << " and " << (i+1) << ": " << first << " and " << second << std::endl;
-            
-            if (first <= second) {
-                subPairs.push_back(std::make_pair(first, second));
-                std::cout << "  [DEBUG] Created sub-pair: (" << first << "," << second << ")" << std::endl;
-            } else {
-                subPairs.push_back(std::make_pair(second, first));
-                std::cout << "  [DEBUG] Created sub-pair: (" << second << "," << first << ") [swapped]" << std::endl;
-            }
-        }
-        
-        if (largerElements.size() % 2 != 0) {
-            subRemaining.push_back(largerElements[largerElements.size() - 1]);
-            std::cout << "  [DEBUG] Added remaining element: " << largerElements[largerElements.size() - 1] << std::endl;
-        }
-        
-        std::cout << "  [DEBUG] Created " << subPairs.size() << " sub-pairs" << std::endl;
-        
-        // recursive call to sort the sub-pairs
-        sortPairs(subPairs);
-        
-        // extract the sorted larger elements from sorted sub-pairs
-        largerElements.clear();
-        for (size_t i = 0; i < subPairs.size(); ++i) {
-            largerElements.push_back(subPairs[i].second);
-        }
-        // add any remaining larger elements
-        for (size_t i = 0; i < subRemaining.size(); ++i) {
-            largerElements.push_back(subRemaining[i]);
-        }
-        
-        // in case of fewer sub-pairs than original pairs handle the missing elements
-        // this happens when there is an even number of larger elements
-        if (subPairs.size() < pairs.size()) {
-            std::cout << "  [DEBUG] Handling missing elements (sub-pairs: " << subPairs.size() << " < original: " << pairs.size() << ")" << std::endl;
-            
-            // find the missing larger elements that weren't processed in sub-pairs
-            std::vector<bool> processed(pairs.size(), false);
-            for (size_t i = 0; i < subPairs.size(); ++i) {
-                for (size_t j = 0; j < pairs.size(); ++j) {
-                    if (!processed[j] && pairs[j].second == subPairs[i].second) {
-                        processed[j] = true;
-                        break;
-                    }
-                }
-            }
-            
-            // add the unprocessed larger elements in their original order but no elements that are already in subRemaining
-            for (size_t i = 0; i < pairs.size(); ++i) {
-                if (!processed[i]) {
-                    // check if element is already in subRemaining
-                    bool alreadyInRemaining = false;
-                    for (size_t k = 0; k < subRemaining.size(); ++k) {
-                        if (pairs[i].second == subRemaining[k]) {
-                            alreadyInRemaining = true;
-                            break;
-                        }
-                    }
-                    
-                    if (!alreadyInRemaining) {
-                        largerElements.push_back(pairs[i].second);
-                        std::cout << "  [DEBUG] Added missing element: " << pairs[i].second << std::endl;
-                    } else {
-                        std::cout << "  [DEBUG] Skipped element " << pairs[i].second << " (already in remaining)" << std::endl;
-                    }
-                }
-            }
-        }
-        
-        std::cout << "  [DEBUG] After recursion, larger elements: ";
-        for (size_t i = 0; i < largerElements.size(); ++i) {
-            std::cout << largerElements[i] << " ";
-        }
-        std::cout << std::endl;
-    }
-    
-    // reconstruct pairs with sorted larger elements
-    std::vector<std::pair<int, int> > sortedPairs;
-    std::vector<bool> used(pairs.size(), false);
-    
-    // find original pair for each sorted larger element
-    for (size_t i = 0; i < largerElements.size(); ++i) {
-        for (size_t j = 0; j < pairs.size(); ++j) {
-            if (!used[j] && pairs[j].second == largerElements[i]) {
-                sortedPairs.push_back(pairs[j]);
-                used[j] = true;
-                break;
-            }
-        }
-    }
-    
-    std::cout << "  [DEBUG] Reconstructed " << sortedPairs.size() << " pairs" << std::endl;
-    
-    // update the original pairs vector
-    pairs = sortedPairs;
-}
-
-// Step 2: Create pairs from consecutive elements and use debug prints
-void PmergeMe::testPairs(int ac, char **av) {
-    // Parse and validate arguments
-    parseArguments(ac, av);
-    // print original int sequence
-    std::cout << "Original sequence: ";
-    for (size_t i = 0; i < vecNumbers.size(); ++i) {
-        std::cout << vecNumbers[i];
-        if (i < vecNumbers.size() - 1) {
-            std::cout << " ";
-        }
-    }
-    std::cout << std::endl;
-    
-    // create the pairs
-    std::vector<std::pair<int, int> > pairs;
-    std::vector<int> remaining;
-    createPairs(pairs, remaining);
-    
-    // print pairs
-    std::cout << "Pairs created: ";
+    // Display created pairs
+    DEBUG("Pairs created: ");
     for (size_t i = 0; i < pairs.size(); ++i) {
         std::cout << "(" << pairs[i].first << "," << pairs[i].second << ")";
         if (i < pairs.size() - 1) {
@@ -261,55 +89,9 @@ void PmergeMe::testPairs(int ac, char **av) {
         }
     }
     std::cout << std::endl;
-    
-    // Step 3: Sort each pair by putting the higher int first within the pair
-    sortPairs(pairs);
-    
-    std::cout << "Pairs sorted by larger elements: ";
-    for (size_t i = 0; i < pairs.size(); ++i) {
-        std::cout << "(" << pairs[i].first << "," << pairs[i].second << ")";
-        if (i < pairs.size() - 1) {
-            std::cout << " ";
-        }
-    }
-    std::cout << std::endl;
-    
-    // Step 4: Build the main chain from larger elements
-    std::cout << "\n=== STEP 4: BUILDING MAIN CHAIN ===" << std::endl;
-    std::vector<int> mainChain;
-    std::vector<int> smallerElements;
-    
-    // add all larger elements in their sorted order to build the main chain
-    for (size_t i = 0; i < pairs.size(); ++i) {
-        mainChain.push_back(pairs[i].second);
-        smallerElements.push_back(pairs[i].first);
-        std::cout << "  [DEBUG] Added larger element to main chain: " << pairs[i].second << std::endl;
-        std::cout << "  [DEBUG] Stored corresponding smaller element: " << pairs[i].first << std::endl;
-    }
-    
-    // print main chain
-    std::cout << "Main chain (larger elements): ";
-    for (size_t i = 0; i < mainChain.size(); ++i) {
-        std::cout << mainChain[i];
-        if (i < mainChain.size() - 1) {
-            std::cout << " ";
-        }
-    }
-    std::cout << std::endl;
-    
-    // print smaller elements chain that will be inserted later
-    std::cout << "Smaller elements to insert: ";
-    for (size_t i = 0; i < smallerElements.size(); ++i) {
-        std::cout << smallerElements[i];
-        if (i < smallerElements.size() - 1) {
-            std::cout << " ";
-        }
-    }
-    std::cout << std::endl;
-    
-    // print remaining elements
+    // Print remaining elements 
     if (!remaining.empty()) {
-        std::cout << "Remaining element: ";
+        DEBUG("Remaining element: ");
         for (size_t i = 0; i < remaining.size(); ++i) {
             std::cout << remaining[i];
             if (i < remaining.size() - 1) {
@@ -317,10 +99,89 @@ void PmergeMe::testPairs(int ac, char **av) {
             }
         }
         std::cout << std::endl;
-    } else {
-        std::cout << "No remaining elements (even number of elements)" << std::endl;
+    }
+}
+
+// Step 1: Recursively sort pairs by their larger elements using Ford-Johnson grouping
+void PmergeMe::sortPairsRecursively(std::vector<std::pair<int, int> >& pairs, int recursionDepth) const {
+    DEBUG("Recursion depth " << recursionDepth << ": Processing " << pairs.size() << " pairs");
+    
+    // Calculate how many pairs to group together at this recursion level
+    // Level 1: group 2 pairs, Level 2: group 4 pairs, Level 3: group 8 pairs, etc.
+    size_t groupSize = 1 << recursionDepth; // 2^recursionDepth
+    
+    DEBUG("Recursion depth " << recursionDepth << ": Grouping " << groupSize << " pairs together");
+    
+    // stop the recursion if there are not enough pairs to group
+    if (pairs.size() < groupSize) {
+        DEBUG("Recursion depth " << recursionDepth << ": Base case - not enough pairs to group");
+        return;
     }
     
+    // Process pairs in groups of groupSize
+    for (size_t i = 0; i < pairs.size() - groupSize + 1; i += groupSize) {
+        DEBUG("Recursion depth " << recursionDepth << ": Processing group starting at index " << i);
+        
+        // Each group contains two subgroups of groupSize/2 pairs
+        size_t subgroupSize = groupSize / 2;
+        
+        // Compare the larger elements (second element) of the last pair in each subgroup
+        int firstSubgroupLastLarger = pairs[i + subgroupSize - 1].second;
+        int secondSubgroupLastLarger = pairs[i + groupSize - 1].second;
+        
+        DEBUG("Recursion depth " << recursionDepth << ": Comparing " << firstSubgroupLastLarger << " vs " << secondSubgroupLastLarger);
+        
+        // If the second subgroup's last larger element is smaller, swap the entire groups
+        if (secondSubgroupLastLarger < firstSubgroupLastLarger) {
+            DEBUG("Recursion depth " << recursionDepth << ": Swapping subgroups - second subgroup has smaller last element");
+            
+            // Swap the two subgroups
+            for (size_t j = 0; j < subgroupSize; ++j) {
+                std::swap(pairs[i + j], pairs[i + subgroupSize + j]);
+            }
+        } else {
+            DEBUG("Recursion depth " << recursionDepth << ": No swap needed - first subgroup has smaller last element");
+        }
+    }
+    
+    // Display current sequence after each recursion level
+    DEBUG("Recursion depth " << recursionDepth << ": After grouping, pairs are: ");
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        std::cout << "(" << pairs[i].first << "," << pairs[i].second << ")";
+        if (i < pairs.size() - 1) {
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+    
+    // Recursively process the next level
+    sortPairsRecursively(pairs, recursionDepth + 1);
+}
+
+// main function that organizes the whole algo
+void PmergeMe::runAlgo(int ac, char **av) 
+{
+    parseArguments(ac, av);
+    // Create the pairs
+    std::vector<std::pair<int, int> > pairs;
+    std::vector<int> remaining;
+    createPairs(pairs, remaining);
+    
+    DEBUG("\n=== RECURSIVE SORTING OF PAIRS ===");
+    sortPairsRecursively(pairs);
+    
+    // Display sorted pairs
+    std::cout << std::endl;
+    DEBUG("->>> Sorted sequence after recursion: ");
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        std::cout << "(" << pairs[i].first << "," << pairs[i].second << ")";
+        if (i < pairs.size() - 1) {
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+    
+    // Clear containers for next test
     vecNumbers.clear();
     deqNumbers.clear();
 }
