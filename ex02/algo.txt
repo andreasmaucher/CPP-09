@@ -16,6 +16,7 @@ Eval:
 - no duplicate checking as algo works with duplicates and checking would add extra load and make it slower
 - it needs to use recursion! (it works iterative but algo requires recursion!)
 - the process of binary search
+- is it ok that my larger elements start with highest and go down???
 
 Step-by-Step Thought Process
 Phase 1: Understanding the Problem

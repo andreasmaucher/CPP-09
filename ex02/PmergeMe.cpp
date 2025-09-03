@@ -274,7 +274,40 @@ void PmergeMe::testPairs(int ac, char **av) {
     }
     std::cout << std::endl;
     
-    // print remaining elements if any
+    // Step 4: Build the main chain from larger elements
+    std::cout << "\n=== STEP 4: BUILDING MAIN CHAIN ===" << std::endl;
+    std::vector<int> mainChain;
+    std::vector<int> smallerElements;
+    
+    // add all larger elements in their sorted order to build the main chain
+    for (size_t i = 0; i < pairs.size(); ++i) {
+        mainChain.push_back(pairs[i].second);
+        smallerElements.push_back(pairs[i].first);
+        std::cout << "  [DEBUG] Added larger element to main chain: " << pairs[i].second << std::endl;
+        std::cout << "  [DEBUG] Stored corresponding smaller element: " << pairs[i].first << std::endl;
+    }
+    
+    // print main chain
+    std::cout << "Main chain (larger elements): ";
+    for (size_t i = 0; i < mainChain.size(); ++i) {
+        std::cout << mainChain[i];
+        if (i < mainChain.size() - 1) {
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+    
+    // print smaller elements chain that will be inserted later
+    std::cout << "Smaller elements to insert: ";
+    for (size_t i = 0; i < smallerElements.size(); ++i) {
+        std::cout << smallerElements[i];
+        if (i < smallerElements.size() - 1) {
+            std::cout << " ";
+        }
+    }
+    std::cout << std::endl;
+    
+    // print remaining elements
     if (!remaining.empty()) {
         std::cout << "Remaining element: ";
         for (size_t i = 0; i < remaining.size(); ++i) {

@@ -31,6 +31,7 @@ Takes a sorted array and a value
 Returns the position where the value should be inserted
 Uses recursion (as required)
 Learning Goal: Understand efficient insertion positioning.
+
 Step 5: Understanding Main Chain Building
 Concept: Building the Sorted Sequence
 Exercise 5: Create a function that:
