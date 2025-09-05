@@ -1,5 +1,28 @@
 #include "PmergeMe.hpp"
 
+// Constructor
+PmergeMe::PmergeMe(void) {}
+
+// Destructor
+PmergeMe::~PmergeMe(void) {}
+
+// Copy constructor
+PmergeMe::PmergeMe(const PmergeMe &other)
+{
+   (void)other;
+   *this = other;
+}
+
+// Copy assignment Operator
+PmergeMe &PmergeMe::operator=(const PmergeMe &other)
+{
+   (void)other;
+   return *this;
+}
+
+// This tracks the total number of comparisons made during sorting
+int PmergeMe::comparison_count = 0;
+
 // parse through the input and check that it only includes valid integers
 void PmergeMe::checkArgs(int ac, char **av) 
 {
