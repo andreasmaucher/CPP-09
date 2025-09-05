@@ -1,35 +1,27 @@
 #include "PmergeMe.hpp"
-#include <stdexcept>
-#include <string>
-#include <sstream>
-#include <iostream>
-#include <cstdio>
-#include <algorithm>  // for std::find, std::swap_ranges, std::rotate
-#include <cmath>  // for ceil() and log2()
 
-// Initialize static comparison counter
-// This tracks the total number of comparisons made during sorting
-int PmergeMe::comparison_count = 0;
-
-
-
+// Constructor
 PmergeMe::PmergeMe(void) {}
 
+// Destructor
 PmergeMe::~PmergeMe(void) {}
 
-// copy constructor
+// Copy constructor
 PmergeMe::PmergeMe(const PmergeMe &other)
 {
    (void)other;
    *this = other;
 }
 
-// copy assignment
+// Copy assignment Operator
 PmergeMe &PmergeMe::operator=(const PmergeMe &other)
 {
    (void)other;
    return *this;
 }
+
+// This tracks the total number of comparisons made during sorting
+int PmergeMe::comparison_count = 0;
 
 /**
  * Main entry point for the Ford-Johnson merge-insertion sort algorithm.
@@ -45,34 +37,30 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other)
  * 
  * Example usage: ./PmergeMe 3 1 4 1 5 9 2 6
  * 
- * @param argc Number of command line arguments
- * @param argv Array of command line argument strings
+ * @param ac Number of command line arguments
+ * @param av Array of command line argument strings
  */
-void PmergeMe::runMergeInsertSort(int argc, char *argv[]) 
+void PmergeMe::runMergeInsertSort(int ac, char *av[]) 
 {
     // Step 1: Parse and validate input arguments
-    checkArgs(argc, argv);
-    std::cout << "Before: ";
-    printDeque(pmerge_deque);
+    checkArgs(ac, av);
+    printSequence("Before: ", pmerge_deque);
     
-    // Step 2: Create vector copy for comparison
+    // Step 2: Copy deque to vector and allocate memory for it upfront
+    // -> eliminate memory allocation overhead between the two containers
     pmerge_vector.assign(pmerge_deque.begin(), pmerge_deque.end());
     pmerge_vector.reserve(pmerge_vector.size());
-    
-    std::cout << "\n=== INITIAL SEQUENCE ===" << std::endl;
-    printSequence("Original sequence: ", pmerge_vector);
-    std::cout << std::endl;
 
     // Step 3: Sort using deque and measure performance
-    resetComparisonCount(); // Reset counter before deque sorting
     clock_t c_start_deque = clock();
     std::deque<unsigned int> sorted_result_deque = sortDequeFordJohnson(pmerge_deque);
     clock_t c_end_deque = clock();
-    double cpu_time_deque = double(c_end_deque - c_start_deque) / CLOCKS_PER_SEC * 1000000;
+    double cpu_time_deque = double(c_end_deque - c_start_deque) / CLOCKS_PER_SEC * 1000000; // double to keep precision in microseconds
     int deque_comparisons = getComparisonCount();
 
+    resetComparisonCount();
+
     // Step 4: Sort using vector and measure performance
-    resetComparisonCount(); // Reset counter before vector sorting
     clock_t c_start_vector = clock();
     std::vector<unsigned int> sorted_result_vector = sortVecFordJohnson(pmerge_vector);
     clock_t c_end_vector = clock();
@@ -80,10 +68,8 @@ void PmergeMe::runMergeInsertSort(int argc, char *argv[])
     int vector_comparisons = getComparisonCount();
 
     // Step 5: Display results
-    std::cout << "After deque: ";
-    printDeque(sorted_result_deque);
-    std::cout << "After vector: ";
-    printVector(sorted_result_vector);
+    printSequence("After deque: ", sorted_result_deque);
+    printSequence("After vector: ", sorted_result_vector);
 
     std::cout << "Time to process a range of " << sorted_result_deque.size() << " elements with std::deque : " << cpu_time_deque << " us" << std::endl;
     std::cout << "Time to process a range of " << sorted_result_vector.size() << " elements with std::vector : " << cpu_time_vector << " us" << std::endl;
@@ -92,119 +78,58 @@ void PmergeMe::runMergeInsertSort(int argc, char *argv[])
     int max_comparisons = maxComparisonsFJ(sorted_result_deque.size());
     
     // Display comparison counts vs theoretical maximum
-    std::cout << "Number of comparisons with std::deque: " << deque_comparisons << " / " << max_comparisons << std::endl;
-    std::cout << "Number of comparisons with std::vector: " << vector_comparisons << " / " << max_comparisons << std::endl;
+    std::cout << "Number of comparisons with std::deque vs. theoretical limit:  " << deque_comparisons << " / " << max_comparisons << std::endl;
+    std::cout << "Number of comparisons with std::vector vs. theoretical limit: " << vector_comparisons << " / " << max_comparisons << std::endl;
 }
 
-/**
- * Validates command line arguments and populates the deque with input numbers.
- * 
- * This function parses each command line argument, validates that it's a positive integer,
- * and adds it to the internal deque for sorting.
- * 
- * Validation rules:
- * - Must provide at least one argument
- * - Each argument must be a valid positive integer
- * - No negative numbers allowed
- * - No non-numeric characters allowed
- * 
- * Example valid inputs: "123", "0", "999"
- * Example invalid inputs: "-5", "abc", "12.5", ""
- * 
- * @param argc Number of command line arguments
- * @param argv Array of command line argument strings
- * @throws std::runtime_error if arguments are invalid
- */
-void PmergeMe::checkArgs(int argc, char *argv[]) {
-    if (argc == 1)
-            throw std::runtime_error("Please provide arguments to be sorted in the format ./PmergeMe 1 2 3 4");
-    
-    // Parse each argument starting from index 1 (skip program name)
-    for (int i = 1; i < argc; i++) 
-    {
-        std::istringstream iss(argv[i]);
-        int pmerge_int;
-        
-        // Check if the argument is a valid positive integer
-        // iss.peek() == EOF ensures no extra characters after the number
-        if (iss >> pmerge_int && iss.peek() == EOF && pmerge_int >= 0)
-        {
-            pmerge_deque.push_back(pmerge_int);
-        }
-        else
-            throw std::runtime_error("Please provide valid numeric positive arguments");
-    }
-}
+/*
+Example calculation to show how this works:
 
-void PmergeMe::printDeque(std::deque<unsigned int> pmerge_deque) {
-   if (pmerge_deque.empty())
-      std::cout << "pmerge_deque is empty!" << std::endl;
-   while (!pmerge_deque.empty())
-   {
-      std::cout << pmerge_deque.front() << " ";
-      pmerge_deque.pop_front();
-   }
-   std::cout << std::endl;
-};
+Sequence: 11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13
+maxPending = 21 / 2 + 1 = 10 + 1 = 11
 
-void PmergeMe::printVector(std::vector<unsigned int> pmerge_deque) {
-   if (pmerge_deque.empty())
-      std::cout << "pmerge_deque is empty!" << std::endl;
-   while (!pmerge_deque.empty())
-   {
-      std::cout << pmerge_deque.front() << " ";
-      pmerge_deque.erase(pmerge_deque.begin());
-   }
-   std::cout << std::endl;
-};
+Calculate Jacobsthal sequence:
+J(0) = 0
+J(1) = 1
+J(2) = J(1) + 2*J(0) = 1 + 2*0 = 1
+J(3) = J(2) + 2*J(1) = 1 + 2*1 = 3
+J(4) = J(3) + 2*J(2) = 3 + 2*1 = 5
+J(5) = J(4) + 2*J(3) = 5 + 2*3 = 11
+J(6) = J(5) + 2*J(4) = 11 + 2*5 = 21
 
+Original: [0, 1, 1, 3, 5, 11, 21]
+After removing duplicates: [0, 1, 3, 5, 11, 21]
 
-/**
- * Generates the Jacobsthal sequence up to n elements.
- * 
- * The Jacobsthal sequence is crucial for the Ford-Johnson algorithm's optimal insertion order.
- * It determines which elements to insert first to minimize comparisons.
- * 
- * Sequence formula: J(0)=0, J(1)=1, J(n)=J(n-1)+2*J(n-2)
- * 
- * Example sequence for n=10:
- * J(0)=0, J(1)=1, J(2)=1+2*0=1, J(3)=1+2*1=3, J(4)=3+2*1=5, J(5)=5+2*3=11
- * Result: [0, 1, 1, 3, 5, 11] (duplicate 1 removed: [0, 1, 3, 5, 11])
- * 
- * Why this matters:
- * - The sequence determines the optimal order for inserting "pending" elements
- * - Each Jacobsthal number represents a group size for insertion
- * - This minimizes the total number of comparisons needed
- * 
- * @param n Maximum number of elements to generate
- * @return Vector containing the Jacobsthal sequence
- */
+Filter for values ≤ maxPending (11) -> JT never higher than maxPending!
+
+Collect Jacobsthal numbers > 0 and ≤ 11: [1, 3, 5, 11]
+Build insertion order:
+J=1 → [1]
+J=3 → [1, 3, 2] (fill gap between 1 and 3)
+J=5 → [1, 3, 2, 5, 4] (fill gap between 3 and 5)  
+J=11 → [1, 3, 2, 5, 4, 11, 10, 9, 8, 7, 6] (fill gap between 5 and 11)
+*/
+// calculate the Jacobsthal sequence
 std::vector<unsigned int> PmergeMe::getJacobsthalIndexes(unsigned int n) {
     std::vector<unsigned int> jacobsthal;
-    if (n <= 0) return jacobsthal;
-    
-    // Generate Jacobsthal sequence: J(0)=0, J(1)=1, J(n)=J(n-1)+2*J(n-2)
     unsigned int j0 = 0, j1 = 1;
     if (j0 < n) jacobsthal.push_back(j0);
     if (j1 < n) jacobsthal.push_back(j1);
-    
     // Continue generating until we exceed n
-    while (true) {
+    while (true) 
+    {
         unsigned int jNext = j1 + 2 * j0; // J(n) = J(n-1) + 2*J(n-2)
         jacobsthal.push_back(jNext);
         if (jNext >= n) break;
         j0 = j1;
         j1 = jNext;
     }
-    
-    // Remove duplicate '1' if it exists (same as working implementation)
-    // This happens because J(1)=1 and J(2)=1, so we get [0,1,1,...]
+    // Remove duplicate '1' if it exists (happens because J(1)=1 and J(2)=1)
     if (jacobsthal.size() > 2) {
         std::vector<unsigned int>::iterator it = jacobsthal.begin();
         ++it;
         jacobsthal.erase(it);
     }
-    
     return jacobsthal;
 }
 
@@ -225,186 +150,6 @@ void PmergeMe::binaryInsertDeque(std::deque<unsigned int>& chain, unsigned int v
     chain.insert(left, value);
 }
 
-std::vector<unsigned int> PmergeMe::mergeInsertSortRecursiveVector(const std::vector<unsigned int>& input) {
-    // Base case: 0 or 1 elements are already sorted
-    if (input.size() <= 1)
-        return input;
-    
-    std::cout << "\n=== RECURSIVE CALL (size: " << input.size() << ") ===" << std::endl;
-    printSequence("Input: ", input);
-    
-    // Step 1: Pair elements into smalls and larges
-    std::vector<unsigned int> smalls;
-    std::vector<unsigned int> larges;
-    int leftover = -1;
-    
-    for (size_t i = 0; i + 1 < input.size(); i += 2) {
-        unsigned int a = input[i];
-        unsigned int b = input[i + 1];
-        if (a < b) {
-            smalls.push_back(a);
-            larges.push_back(b);
-        } else {
-            smalls.push_back(b);
-            larges.push_back(a);
-        }
-    }
-    
-    if (input.size() % 2 != 0) {
-        leftover = input.back();
-    }
-    
-    std::cout << "Step 1 - Pairing:" << std::endl;
-    printSequence("Smalls: ", smalls);
-    printSequence("Larges: ", larges);
-    if (leftover != -1) {
-        std::cout << "Leftover: " << leftover << std::endl;
-    }
-    
-    // Step 2: Create a deque from larges and recursively sort it
-    std::vector<unsigned int> larges_deque(larges.begin(), larges.end());
-    std::cout << "Step 2 - Recursively sorting larges:" << std::endl;
-    printSequence("Larges to sort: ", larges_deque);
-    
-    std::vector<unsigned int> main_chain = mergeInsertSortRecursiveVector(larges_deque);
-    std::cout << "Step 2 - Main chain after recursion:" << std::endl;
-    printSequence("Main chain: ", main_chain);
-    
-    // Step 3: Insert smalls based on Jacobsthal order
-    std::vector<unsigned int> insertion_order = getJacobsthalIndexes(smalls.size());
-    std::cout << "Step 3 - Jacobsthal insertion order:" << std::endl;
-    printSequence("Insertion order: ", insertion_order);
-    printSequence("Smalls to insert: ", smalls);
-    
-    std::vector<unsigned int> pending = smalls;
-    std::vector<unsigned int> nonParticipating;
-    if (leftover != -1) {
-        nonParticipating.push_back(leftover);
-    }
-    
-    printMainPendingNonParticipating("Before Jacobsthal insertion", main_chain, pending, nonParticipating);
-    
-    for (size_t i = 0; i < insertion_order.size(); ++i) {
-        int index = insertion_order[i];
-        if (index < (int)smalls.size()) {
-            unsigned int value_to_insert = smalls[index];
-            std::cout << "Inserting " << value_to_insert << " (index " << index << " in smalls)" << std::endl;
-            binaryInsertVector(main_chain, value_to_insert);
-            
-            // Remove from pending
-            pending.erase(std::remove(pending.begin(), pending.end(), value_to_insert), pending.end());
-            
-            std::cout << "After insertion " << (i + 1) << ":" << std::endl;
-            std::ostringstream oss;
-            oss << "State after insertion " << (i + 1);
-            printMainPendingNonParticipating(oss.str(), main_chain, pending, nonParticipating);
-        }
-    }
-    
-    // Step 4: Insert leftover if exists
-    if (leftover != -1) {
-        std::cout << "Step 4 - Inserting leftover: " << leftover << std::endl;
-        binaryInsertVector(main_chain, leftover);
-        nonParticipating.clear();
-    }
-    
-    std::cout << "Final result for this recursive call:" << std::endl;
-    printSequence("Final: ", main_chain);
-    std::cout << "=== END RECURSIVE CALL ===" << std::endl;
-    
-    return main_chain;
-}
-
-std::deque<unsigned int> PmergeMe::mergeInsertSortRecursiveDeque(const std::deque<unsigned int>& input) {
-    // Base case: 0 or 1 elements are already sorted
-    if (input.size() <= 1)
-        return input;
-    
-    std::cout << "\n=== RECURSIVE CALL DEQUE (size: " << input.size() << ") ===" << std::endl;
-    printSequence("Input: ", input);
-    
-    // Step 1: Pair elements into smalls and larges
-    std::deque<unsigned int> smalls;
-    std::deque<unsigned int> larges;
-    int leftover = -1;
-    
-    for (size_t i = 0; i + 1 < input.size(); i += 2) {
-        unsigned int a = input[i];
-        unsigned int b = input[i + 1];
-        if (a < b) {
-            smalls.push_back(a);
-            larges.push_back(b);
-        } else {
-            smalls.push_back(b);
-            larges.push_back(a);
-        }
-    }
-    
-    if (input.size() % 2 != 0) {
-        leftover = input.back();
-    }
-    
-    std::cout << "Step 1 - Pairing:" << std::endl;
-    printSequence("Smalls: ", smalls);
-    printSequence("Larges: ", larges);
-    if (leftover != -1) {
-        std::cout << "Leftover: " << leftover << std::endl;
-    }
-    
-    // Step 2: Create a deque from larges and recursively sort it
-    std::deque<unsigned int> larges_deque(larges.begin(), larges.end());
-    std::cout << "Step 2 - Recursively sorting larges:" << std::endl;
-    printSequence("Larges to sort: ", larges_deque);
-    
-    std::deque<unsigned int> main_chain = mergeInsertSortRecursiveDeque(larges_deque);
-    std::cout << "Step 2 - Main chain after recursion:" << std::endl;
-    printSequence("Main chain: ", main_chain);
-    
-    // Step 3: Insert smalls based on Jacobsthal order
-    std::vector<unsigned int> insertion_order = getJacobsthalIndexes(smalls.size());
-    std::cout << "Step 3 - Jacobsthal insertion order:" << std::endl;
-    printSequence("Insertion order: ", insertion_order);
-    printSequence("Smalls to insert: ", smalls);
-    
-    std::deque<unsigned int> pending = smalls;
-    std::deque<unsigned int> nonParticipating;
-    if (leftover != -1) {
-        nonParticipating.push_back(leftover);
-    }
-    
-    printMainPendingNonParticipating("Before Jacobsthal insertion", main_chain, pending, nonParticipating);
-    
-    for (size_t i = 0; i < insertion_order.size(); ++i) {
-        int index = insertion_order[i];
-        if (index < (int)smalls.size()) {
-            unsigned int value_to_insert = smalls[index];
-            std::cout << "Inserting " << value_to_insert << " (index " << index << " in smalls)" << std::endl;
-            binaryInsertDeque(main_chain, value_to_insert);
-            
-            // Remove from pending
-            pending.erase(std::remove(pending.begin(), pending.end(), value_to_insert), pending.end());
-            
-            std::cout << "After insertion " << (i + 1) << ":" << std::endl;
-            std::ostringstream oss;
-            oss << "State after insertion " << (i + 1);
-            printMainPendingNonParticipating(oss.str(), main_chain, pending, nonParticipating);
-        }
-    }
-    
-    // Step 4: Insert leftover if exists
-    if (leftover != -1) {
-        std::cout << "Step 4 - Inserting leftover: " << leftover << std::endl;
-        binaryInsertDeque(main_chain, leftover);
-        nonParticipating.clear();
-    }
-    
-    std::cout << "Final result for this recursive call:" << std::endl;
-    printSequence("Final: ", main_chain);
-    std::cout << "=== END RECURSIVE CALL DEQUE ===" << std::endl;
-    
-    return main_chain;
-}
-
 void PmergeMe::binaryInsertVector(std::vector<unsigned int>& chain, unsigned int value) {
     // Manual binary search to control comparison counting
     std::vector<unsigned int>::iterator left = chain.begin();
@@ -420,46 +165,6 @@ void PmergeMe::binaryInsertVector(std::vector<unsigned int>& chain, unsigned int
         }
     }
     chain.insert(left, value);
-}
-
-void PmergeMe::printSequence(const std::string& label, const std::vector<unsigned int>& seq) {
-    std::cout << label;
-    for (size_t i = 0; i < seq.size(); ++i) {
-        std::cout << seq[i];
-        if (i < seq.size() - 1) std::cout << " ";
-    }
-    std::cout << std::endl;
-}
-
-void PmergeMe::printSequence(const std::string& label, const std::deque<unsigned int>& seq) {
-    std::cout << label;
-    for (size_t i = 0; i < seq.size(); ++i) {
-        std::cout << seq[i];
-        if (i < seq.size() - 1) std::cout << " ";
-    }
-    std::cout << std::endl;
-}
-
-void PmergeMe::printMainPendingNonParticipating(const std::string& step, 
-                                                const std::vector<unsigned int>& main, 
-                                                const std::vector<unsigned int>& pending, 
-                                                const std::vector<unsigned int>& nonParticipating) {
-    std::cout << "\n=== " << step << " ===" << std::endl;
-    printSequence("Main: ", main);
-    printSequence("Pending: ", pending);
-    printSequence("Non-participating: ", nonParticipating);
-    std::cout << std::endl;
-}
-
-void PmergeMe::printMainPendingNonParticipating(const std::string& step, 
-                                                const std::deque<unsigned int>& main, 
-                                                const std::deque<unsigned int>& pending, 
-                                                const std::deque<unsigned int>& nonParticipating) {
-    std::cout << "\n=== " << step << " ===" << std::endl;
-    printSequence("Main: ", main);
-    printSequence("Pending: ", pending);
-    printSequence("Non-participating: ", nonParticipating);
-    std::cout << std::endl;
 }
 
 // Static methods for comparison counting
@@ -557,17 +262,22 @@ std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigne
     return vec;
 }
 
+// execution of the Ford-Johnson algorithm on std::deque
 std::deque<unsigned int> PmergeMe::sortDequeFordJohnson(const std::deque<unsigned int>& input) {
     std::deque<unsigned int> deq = input;
     if (deq.size() <= 1) // Already sorted
         return deq;
 
+    // Step 1: determine how many insertion rounds we need to run and recursively swap blocks
     int recDepth = sortPairsRecursivelyDeque(deq, 1);
-    int maxPending = deq.size() / 2 + 1; // '+1' to accommodate for potential leftover
+    // Step 2: calculate maxPending elements to know where to cut off Jacobsthal Sequence
+    int maxPending = deq.size() / 2 + 1; // '+1' to cover cases where total is odd
+    // Step 3: calculate Jacobsthal sequence
     std::vector<unsigned int> jacSeq = getJacobsthalIndexes(maxPending);
 
-    while (recDepth > 0) {
-        int blockSize = 1u << (recDepth - 1); // '1<<n' -> '2^n'
+    while (recDepth > 0) 
+    {
+        int blockSize = 1u << (recDepth - 1); // '1<<n' -> '2^n' e.g. lu << (4 - 1) = lu << 3 = 2^3 = 8
         int numBlocks = deq.size() / blockSize;
         int numPending = getNumPending(numBlocks);
 
@@ -576,10 +286,28 @@ std::deque<unsigned int> PmergeMe::sortDequeFordJohnson(const std::deque<unsigne
 
         --recDepth;
     }
-
     return deq;
 }
 
+// function recursively compares pairs of blocks by their last elements and swaps them if needed
+/**
+ * Example with sequence [11, 2, 17, 0, 16, 8, 6, 15, 10, 3, 21, 1, 18, 9, 14, 19, 12, 5, 4, 20, 13]:
+ * 
+ * Level 1 (blockSize=1): Compare individual elements
+ *   [11,2] → 11>2? YES → swap → [2,11]
+ *   [17,0] → 17>0? YES → swap → [0,17] 
+ *   [16,8] → 16>8? YES → swap → [8,16]
+ *   Result: [2,11,0,17,8,16,6,15,3,10,1,21,9,18,14,19,5,12,4,20,13]
+ * 
+ * Level 2 (blockSize=2): Compare blocks of size 2
+ *   [2,11] vs [0,17] → 11>17? NO → no swap
+ *   [8,16] vs [6,15] → 16>15? YES → swap → [6,15,8,16]
+ *   Result: [2,11,0,17,6,15,8,16,3,10,1,21,9,18,14,19,5,12,4,20,13]
+ * 
+ * Level 3 (blockSize=4): Compare blocks of size 4
+ *   [2,11,0,17] vs [6,15,8,16] → 17>16? YES → swap entire blocks
+ *   Result: [6,15,8,16,2,11,0,17,3,10,1,21,9,18,14,19,5,12,4,20,13].
+ */
 int PmergeMe::sortPairsRecursivelyDeque(std::deque<unsigned int>& deq, int recDepth) {
     int blockSize = 1u << (recDepth - 1); // blockSize doubles each recursion: 1 -> 2 -> 4 -> ...
     int numBlocks = deq.size() / blockSize; // number of blocks to process
@@ -587,17 +315,15 @@ int PmergeMe::sortPairsRecursivelyDeque(std::deque<unsigned int>& deq, int recDe
     if (numBlocks <= 1) // base case, no more blocks to compare with one another
         return recDepth - 1; // returns recursion level in which the last comparison took place
 
-    // Iterate over all adjacent block pairs
-    for (size_t i = 0; i + 2*blockSize - 1 < deq.size(); i += 2*blockSize) {
-        // Compare the last element of the two blocks, swap blocks if needed
+    // Iterate through the blocks, compare the last element & swap blocks if needed
+    for (size_t i = 0; i + 2*blockSize - 1 < deq.size(); i += 2*blockSize) 
+    {
         comparison_count++;
-        if (deq[i + blockSize - 1] > deq[i + 2*blockSize - 1]) {
-            std::swap_ranges(deq.begin() + i, 
-                            deq.begin() + i + blockSize, 
-                            deq.begin() + i + blockSize);
+        if (deq[i + blockSize - 1] > deq[i + 2*blockSize - 1]) 
+        {
+            std::swap_ranges(deq.begin() + i, deq.begin() + i + blockSize, deq.begin() + i + blockSize);
         }
     }
-
     return sortPairsRecursivelyDeque(deq, recDepth + 1);
 }
 
@@ -826,11 +552,35 @@ bool PmergeMe::isMainChain(int index, int blockSize, int totalSize) {
     return false; // all b-blocks and leftover
 }
 
-int PmergeMe::getNumPending(int numBlocks) {
+/*
+Calculation example:
+
+Sequence: 11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13
+blockSize = 1u << (4 - 1) = 8
+numBlocks = 21 / 8 = 2
+numPending = getNumPending(2)
+
+numPending = (2 / 2) = 1        // 2 blocks → 1 pair → 1 pending
+if (2 % 2 != 0) → false         // No leftover block
+Result: 1 pending element
+
+blockSize = 1u << (3 - 1) = 4
+numBlocks = 21 / 4 = 5
+numPending = getNumPending(5)
+
+numPending = (5 / 2) = 2        // 5 blocks → 2 pairs → 2 pending
+if (5 % 2 != 0) → true          // Odd number of blocks
+    ++numPending                // +1 for leftover block
+Result: 2 + 1 = 3 pending elements
+
+and so on ...
+*/
+// calculate how many elements need to be inserted for the Ford Johnson algorithm
+int PmergeMe::getNumPending(int numBlocks) 
+{
     int numPending = (numBlocks / 2); // each pair contributes one 'b'
     if (numBlocks % 2 != 0) // if odd number of blocks, leftover 'b' also pending
         ++numPending;
-
     return numPending;
 }
 

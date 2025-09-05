@@ -6,6 +6,11 @@
 #include <string>
 #include <exception>
 #include <iostream>
+#include <stdexcept>
+#include <sstream>
+#include <cstdio>
+#include <algorithm>
+#include <cmath>
 
 class PmergeMe
 {
@@ -26,9 +31,7 @@ private:
     // Debug printout functions
     void printSequence(const std::string& label, const std::vector<unsigned int>& seq);
     void printSequence(const std::string& label, const std::deque<unsigned int>& seq);
-    void printDeque(std::deque<unsigned int> pmerge_deque);
-    void printVector(std::vector<unsigned int> pmerge_vector);
-
+    
     std::vector<unsigned int> getJacobsthalIndexes(unsigned int n);
     std::vector<unsigned int> buildInsertOrder(int numPending, const std::vector<unsigned int>& jacSeq);
 
@@ -37,18 +40,8 @@ private:
     void binaryInsertVector(std::vector<unsigned int>& chain, unsigned int value);
     
     // Recursive algorithm implementations (not used in main flow but still implemented)
-    std::deque<unsigned int> mergeInsertSortRecursiveDeque(const std::deque<unsigned int>& input);
-    std::vector<unsigned int> mergeInsertSortRecursiveVector(const std::vector<unsigned int>& input);
-    
-    // Debug functions (used in recursive implementations)
-    void printMainPendingNonParticipating(const std::string& step, 
-                                         const std::vector<unsigned int>& main, 
-                                         const std::vector<unsigned int>& pending, 
-                                         const std::vector<unsigned int>& nonParticipating);
-    void printMainPendingNonParticipating(const std::string& step, 
-                                         const std::deque<unsigned int>& main, 
-                                         const std::deque<unsigned int>& pending, 
-                                         const std::deque<unsigned int>& nonParticipating);
+    /* std::deque<unsigned int> mergeInsertSortRecursiveDeque(const std::deque<unsigned int>& input);
+    std::vector<unsigned int> mergeInsertSortRecursiveVector(const std::vector<unsigned int>& input); */
 
     // Proper Ford-Johnson in-place algorithm methods
     std::vector<unsigned int> sortVecFordJohnson(const std::vector<unsigned int>& input);
@@ -70,8 +63,12 @@ private:
     size_t countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, int pendIdx);
 
 public:
+    // Constructor
     PmergeMe(void);
+    // Deconstructor
     ~PmergeMe(void);
+
+    // main function running the whole algo
     void runMergeInsertSort(int argc, char *argv[]);
     
     // Static method to get comparison count
