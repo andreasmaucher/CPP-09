@@ -23,6 +23,39 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other)
 // This tracks the total number of comparisons made during sorting
 int PmergeMe::comparison_count = 0;
 
+int PmergeMe::getComparisonCount() {
+    return comparison_count;
+}
+
+void PmergeMe::resetComparisonCount() {
+    comparison_count = 0;
+}
+
+/*
+Calculates the theoretical maximum number of comparisons for the Ford-Johnson algorithm.
+This implements the formula from "Art of Computer Programming, Vol. 3, page 186" by Donald Knuth.
+
+Formula: For each k from 1 to n, add ceil(log2(3k/4))
+Practical example for n=5:
+k=1: ceil(log2(3*1/4)) = ceil(log2(0.75)) = ceil(-0.415) = 0
+k=2: ceil(log2(3*2/4)) = ceil(log2(1.5)) = ceil(0.585) = 1
+k=3: ceil(log2(3*3/4)) = ceil(log2(2.25)) = ceil(1.17) = 2
+k=4: ceil(log2(3*4/4)) = ceil(log2(3)) = ceil(1.585) = 2
+k=5: ceil(log2(3*5/4)) = ceil(log2(3.75)) = ceil(1.906) = 2
+Total: 0+1+2+2+2 = 7 comparisons maximum
+
+maxComparisons = Σ(k=1 to n) ceil(log2(3k/4))
+*/
+int PmergeMe::maxComparisonsFJ(int n) 
+{
+    int sum = 0;
+    for (int k = 1; k <= n; ++k) {
+        double value = (3.0 / 4.0) * k; // 3k/4
+        sum += static_cast<int>(ceil(log2(value)));
+    }
+    return sum;
+}
+
 // parse through the input and check that it only includes valid integers
 void PmergeMe::checkArgs(int ac, char **av) 
 {

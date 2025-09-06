@@ -269,6 +269,29 @@ int PmergeMe::rearrangeDeque(std::deque<unsigned int>& deq, int blockSize) {
     return posPending;
 }
 
+//! Step 2.4.1.1
+/*
+Example:
+Block 0: [11, 2, 17, 0]     → Even block → Pending
+Block 1: [16, 8, 6, 15]     → Odd block  → Main chain
+Block 2: [10, 3, 21, 1]     → Even block → Pending  
+Block 3: [18, 9, 14, 19]    → Odd block  → Main chain
+Block 4: [12, 5, 4, 20]     → Even block → Pending
+Block 5: [13]               → Leftover   → Pending
+*/
+// identify which elements are part of the main chain (winners) vs. pending elements (losers)
+bool PmergeMe::isMainChain(int index, int blockSize, int totalSize) {
+    // determine to which block the element belongs to
+    int blockNum = index / blockSize;
+    // leftover elements (incomplete blocks) -> not main chain (if the next block would exceed total size)
+    if ((blockNum + 1) * blockSize > totalSize)
+        return false;
+    // main chain: odd-numbered blocks (a-blocks) are always winners
+    if (blockNum % 2 == 1)
+        return true;
+    return false; // all b-blocks and leftover are losers and added in pending
+}
+
 //! Step 2.4.2
 /**
  * Builds the optimal insertion order using the Jacobsthal sequence.
@@ -350,6 +373,18 @@ size_t PmergeMe::countSmallerPending(const std::vector<unsigned int>& insertionO
 }
 
 //! Step 2.4.4
+int PmergeMe::computeK(int pendIdx, const std::vector<unsigned int>& jacSeq) {
+    std::vector<unsigned int>::const_iterator it = jacSeq.begin();
+    int i = 0;
+
+    for (; it != jacSeq.end(); ++it, ++i)
+        if (static_cast<unsigned int>(pendIdx) <= *it)
+            return i;
+
+    return i; // fallback
+}
+
+//! Step 2.4.5
 size_t PmergeMe::computeUsefulMainEnd(int k, size_t posPending, size_t blockSize) {
     size_t usefulEnd = (1u << k) - 1; // 2^k - 1 blocks allowed according to FJ
     size_t availableBlocks = posPending / blockSize; // blocks in main chain
@@ -361,7 +396,7 @@ size_t PmergeMe::computeUsefulMainEnd(int k, size_t posPending, size_t blockSize
 }
 
 
-//! Step 2.4.5
+//! Step 2.4.6
 size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, unsigned int value, size_t blockSize, size_t numBlocks) {
     size_t left = 0; // inclusive
     size_t right = numBlocks; // exclusive
@@ -377,51 +412,6 @@ size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, uns
             left = mid + 1;
     }
     return left * blockSize;
-}
-
-// Static methods for comparison counting
-int PmergeMe::getComparisonCount() {
-    return comparison_count;
-}
-
-void PmergeMe::resetComparisonCount() {
-    comparison_count = 0;
-}
-
-// Comparison function removed - now using manual binary search for precise counting
-
-/**
- * Calculates the theoretical maximum number of comparisons for the Ford-Johnson algorithm.
- * 
- * This implements the formula from "Art of Computer Programming, Vol. 3, page 186" by Donald Knuth.
- * The Ford-Johnson algorithm achieves the theoretical minimum number of comparisons
- * for comparison-based sorting algorithms.
- * 
- * Formula: For each k from 1 to n, add ceil(log2(3k/4))
- * 
- * Practical example for n=5:
- * k=1: ceil(log2(3*1/4)) = ceil(log2(0.75)) = ceil(-0.415) = 0
- * k=2: ceil(log2(3*2/4)) = ceil(log2(1.5)) = ceil(0.585) = 1
- * k=3: ceil(log2(3*3/4)) = ceil(log2(2.25)) = ceil(1.17) = 2
- * k=4: ceil(log2(3*4/4)) = ceil(log2(3)) = ceil(1.585) = 2
- * k=5: ceil(log2(3*5/4)) = ceil(log2(3.75)) = ceil(1.906) = 2
- * Total: 0+1+2+2+2 = 7 comparisons maximum
- * 
- * This is why we see "66 / 66" for 21 elements - we're achieving the theoretical optimum!
- * 
- * @param n Number of elements to sort
- * @return Theoretical maximum number of comparisons
- */
-int PmergeMe::maxComparisonsFJ(int n) {
-    int sum = 0;
-    
-    // Apply the Ford-Johnson formula for each element position
-    for (int k = 1; k <= n; ++k) {
-        double value = (3.0 / 4.0) * k; // 3k/4
-        sum += static_cast<int>(ceil(log2(value))); // ceil(log2(3k/4))
-    }
-    
-    return sum;
 }
 
 /**
@@ -528,17 +518,6 @@ int PmergeMe::sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDep
  * 2. Build insertion order using Jacobsthal sequence
  * 3. For each pending block, find its optimal insertion position using binary search
  * 4. Move the block to its correct position using std::rotate
-//! Step 2.4.3
-size_t PmergeMe::countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, int pendIdx) {
-    size_t count = 0;
-
-    for (std::vector<unsigned int>::const_iterator it = insertionOrder.begin(); it != endIt; ++it) {
-        if (*it < static_cast<unsigned int>(pendIdx))
-            ++count;
-    }
-
-    return count;
-}
  * 
  * Example with main chain [1,3,5] and pending [2,4]:
  * Insertion order from Jacobsthal: [2, 4] (or [1, 2] if using indices)
@@ -671,35 +650,3 @@ int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize) {
     return posPending;
 }
 
-/*
-Example:
-Block 0: [11, 2, 17, 0]     → Even block → Pending
-Block 1: [16, 8, 6, 15]     → Odd block  → Main chain
-Block 2: [10, 3, 21, 1]     → Even block → Pending  
-Block 3: [18, 9, 14, 19]    → Odd block  → Main chain
-Block 4: [12, 5, 4, 20]     → Even block → Pending
-Block 5: [13]               → Leftover   → Pending
-*/
-// identify which elements are part of the main chain (winners) vs. pending elements (losers)
-bool PmergeMe::isMainChain(int index, int blockSize, int totalSize) {
-    // determine to which block the element belongs to
-    int blockNum = index / blockSize;
-    // leftover elements (incomplete blocks) -> not main chain (if the next block would exceed total size)
-    if ((blockNum + 1) * blockSize > totalSize)
-        return false;
-    // main chain: odd-numbered blocks (a-blocks) are always winners
-    if (blockNum % 2 == 1)
-        return true;
-    return false; // all b-blocks and leftover are losers and added in pending
-}
-
-int PmergeMe::computeK(int pendIdx, const std::vector<unsigned int>& jacSeq) {
-    std::vector<unsigned int>::const_iterator it = jacSeq.begin();
-    int i = 0;
-
-    for (; it != jacSeq.end(); ++it, ++i)
-        if (static_cast<unsigned int>(pendIdx) <= *it)
-            return i;
-
-    return i; // fallback
-}
