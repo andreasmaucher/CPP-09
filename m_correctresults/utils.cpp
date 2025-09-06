@@ -23,11 +23,13 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other)
 // This tracks the total number of comparisons made during sorting
 int PmergeMe::comparison_count = 0;
 
-int PmergeMe::getComparisonCount() {
+int PmergeMe::getComparisonCount() 
+{
     return comparison_count;
 }
 
-void PmergeMe::resetComparisonCount() {
+void PmergeMe::resetComparisonCount() 
+{
     comparison_count = 0;
 }
 
@@ -75,7 +77,8 @@ void PmergeMe::checkArgs(int ac, char **av)
 }
 
 // print the sequence for vector
-void PmergeMe::printSequence(const std::string& label, const std::vector<unsigned int>& seq) {
+void PmergeMe::printSequence(const std::string& label, const std::vector<unsigned int>& seq) 
+{
     std::cout << label;
     for (size_t i = 0; i < seq.size(); ++i) {
         std::cout << seq[i];
@@ -85,7 +88,8 @@ void PmergeMe::printSequence(const std::string& label, const std::vector<unsigne
 }
 
 // print the sequence for deque
-void PmergeMe::printSequence(const std::string& label, const std::deque<unsigned int>& seq) {
+void PmergeMe::printSequence(const std::string& label, const std::deque<unsigned int>& seq) 
+{
     std::cout << label;
     for (size_t i = 0; i < seq.size(); ++i) {
         std::cout << seq[i];

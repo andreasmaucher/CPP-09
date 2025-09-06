@@ -47,7 +47,8 @@ void PmergeMe::runMergeInsertSort(int ac, char *av[])
 
 //! Step 2
 // execution of the Ford-Johnson algorithm on std::deque
-std::deque<unsigned int> PmergeMe::sortDequeFordJohnson(const std::deque<unsigned int>& input) {
+std::deque<unsigned int> PmergeMe::sortDequeFordJohnson(const std::deque<unsigned int>& input) 
+{
     std::deque<unsigned int> deq = input;
     if (deq.size() <= 1) // Already sorted
         return deq;
@@ -94,7 +95,8 @@ std::deque<unsigned int> PmergeMe::sortDequeFordJohnson(const std::deque<unsigne
  *   [2,11,0,17] vs [6,15,8,16] → 17>16? YES → swap entire blocks
  *   Result: [6,15,8,16,2,11,0,17,3,10,1,21,9,18,14,19,5,12,4,20,13].
  */
-int PmergeMe::sortPairsRecursivelyDeque(std::deque<unsigned int>& deq, int recDepth) {
+int PmergeMe::sortPairsRecursivelyDeque(std::deque<unsigned int>& deq, int recDepth) 
+{
     int blockSize = 1u << (recDepth - 1); // blockSize doubles each recursion: 1 -> 2 -> 4 -> ...
     int numBlocks = deq.size() / blockSize; // number of blocks to process
 
@@ -143,7 +145,8 @@ J=5 → [1, 3, 2, 5, 4] (fill gap between 3 and 5)
 J=11 → [1, 3, 2, 5, 4, 11, 10, 9, 8, 7, 6] (fill gap between 5 and 11)
 */
 // calculate the Jacobsthal sequence
-std::vector<unsigned int> PmergeMe::getJacobsthalIndexes(unsigned int n) {
+std::vector<unsigned int> PmergeMe::getJacobsthalIndexes(unsigned int n) 
+{
     std::vector<unsigned int> jacobsthal;
     unsigned int j0 = 0, j1 = 1;
     if (j0 < n) jacobsthal.push_back(j0);
@@ -218,7 +221,8 @@ insertionOrder = [1, 3, 2] (Jacobsthal-based optimal order)
 //! missing stuff
 */
 // inserts pending elements into the main chain using the optimal Ford Johnson insertion order
-void PmergeMe::insertPendingBlocksDeque(std::deque<unsigned int>& deq, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq) {
+void PmergeMe::insertPendingBlocksDeque(std::deque<unsigned int>& deq, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq) 
+{
     // Step 1: separate main chain from pending elements
     int posPending = rearrangeDeque(deq, blockSize);
     // Step 2: create optimal insertion sequence using Jacobsthal numbers
@@ -282,7 +286,8 @@ Block 4: [12, 5, 4, 20]     → Even block → Pending
 Block 5: [13]               → Leftover   → Pending
 */
 // identify which elements are part of the main chain (winners) vs. pending elements (losers)
-bool PmergeMe::isMainChain(int index, int blockSize, int totalSize) {
+bool PmergeMe::isMainChain(int index, int blockSize, int totalSize) 
+{
     // determine to which block the element belongs to
     int blockNum = index / blockSize;
     // leftover elements (incomplete blocks) -> not main chain (if the next block would exceed total size)
@@ -324,7 +329,8 @@ bool PmergeMe::isMainChain(int index, int blockSize, int totalSize) {
  * @param jacSeq Jacobsthal sequence
  * @return Vector containing the optimal insertion order
  */
-std::vector<unsigned int> PmergeMe::buildInsertOrder(int numPending, const std::vector<unsigned int>& jacSeq) {
+std::vector<unsigned int> PmergeMe::buildInsertOrder(int numPending, const std::vector<unsigned int>& jacSeq) 
+{
     std::vector<unsigned int> insertionOrder;
     if (numPending <= 0 || jacSeq.empty())
         return insertionOrder;
@@ -363,19 +369,21 @@ std::vector<unsigned int> PmergeMe::buildInsertOrder(int numPending, const std::
 }
 
 //! Step 2.4.3
-size_t PmergeMe::countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, int pendIdx) {
+// counts amount of smaller pending elements that have already been inserter before the current element
+size_t PmergeMe::countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, int pendIdx) 
+{
     size_t count = 0;
 
     for (std::vector<unsigned int>::const_iterator it = insertionOrder.begin(); it != endIt; ++it) {
         if (*it < static_cast<unsigned int>(pendIdx))
             ++count;
     }
-
     return count;
 }
 
 //! Step 2.4.4
-int PmergeMe::computeK(int pendIdx, const std::vector<unsigned int>& jacSeq) {
+int PmergeMe::computeK(int pendIdx, const std::vector<unsigned int>& jacSeq) 
+{
     std::vector<unsigned int>::const_iterator it = jacSeq.begin();
     int i = 0;
 
@@ -387,7 +395,8 @@ int PmergeMe::computeK(int pendIdx, const std::vector<unsigned int>& jacSeq) {
 }
 
 //! Step 2.4.5
-size_t PmergeMe::computeUsefulMainEnd(int k, size_t posPending, size_t blockSize) {
+size_t PmergeMe::computeUsefulMainEnd(int k, size_t posPending, size_t blockSize) 
+{
     size_t usefulEnd = (1u << k) - 1; // 2^k - 1 blocks allowed according to FJ
     size_t availableBlocks = posPending / blockSize; // blocks in main chain
 
@@ -398,7 +407,8 @@ size_t PmergeMe::computeUsefulMainEnd(int k, size_t posPending, size_t blockSize
 }
 
 //! Step 2.4.6
-size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, unsigned int value, size_t blockSize, size_t numBlocks) {
+size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, unsigned int value, size_t blockSize, size_t numBlocks) 
+{
     size_t left = 0; // inclusive
     size_t right = numBlocks; // exclusive
 

@@ -2,7 +2,8 @@
 
 //! Step V.2 (after merge insert main function)
 // execution of the Ford-Johnson algorithm on std::vector
-std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigned int>& input) {
+std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigned int>& input) 
+{
     std::vector<unsigned int> vec = input;
     if (vec.size() <= 1) // Already sorted
         return vec;
@@ -48,7 +49,8 @@ std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigne
  *   [2,11,0,17] vs [6,15,8,16] → 17>16? YES → swap entire blocks
  *   Result: [6,15,8,16,2,11,0,17,3,10,1,21,9,18,14,19,5,12,4,20,13].
  */
-int PmergeMe::sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDepth) {
+int PmergeMe::sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDepth) 
+{
     int blockSize = 1u << (recDepth - 1); // blockSize doubles each recursion: 1 -> 2 -> 4 -> ...
     int numBlocks = vec.size() / blockSize; // number of blocks to process
 
@@ -92,7 +94,8 @@ int PmergeMe::sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDep
  * @param jacSeq Jacobsthal sequence for determining insertion order
  */
 // inserts pending elements into the main chain using the optimal Ford Johnson insertion order
-void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq) {
+void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq) 
+{
     // Step 1: Separate main chain from pending elements
     int posPending = rearrangeVec(vec, blockSize);
     // Step 2: create optimal insertion sequence using Jacobsthal numbers
@@ -148,7 +151,8 @@ void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockS
  * @param blockSize Size of each block
  * @return Position where pending elements start
  */
-int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize) {
+int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize) 
+{
     std::vector<unsigned int> mainChain, pending;
     size_t vecSize = vec.size();
     int posPending;
@@ -197,7 +201,8 @@ int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize) {
  * @param numBlocks Number of blocks in the main chain
  * @return Position where the block should be inserted
  */
-size_t PmergeMe::binaryInsertBlockVec(const std::vector<unsigned int>& vec, unsigned int value, size_t blockSize, size_t numBlocks) {
+size_t PmergeMe::binaryInsertBlockVec(const std::vector<unsigned int>& vec, unsigned int value, size_t blockSize, size_t numBlocks) 
+{
     size_t left = 0; // inclusive
     size_t right = numBlocks; // exclusive
 
