@@ -104,6 +104,7 @@ int PmergeMe::sortPairsRecursivelyDeque(std::deque<unsigned int>& deq, int recDe
     // Iterate through the blocks, compare the last element & swap blocks if needed
     for (size_t i = 0; i + 2*blockSize - 1 < deq.size(); i += 2*blockSize) 
     {
+        // Compare the last element of the two blocks, swap blocks if needed
         comparison_count++;
         if (deq[i + blockSize - 1] > deq[i + 2*blockSize - 1]) 
         {
@@ -223,7 +224,8 @@ void PmergeMe::insertPendingBlocksDeque(std::deque<unsigned int>& deq, int block
     // Step 2: create optimal insertion sequence using Jacobsthal numbers
     std::vector<unsigned int> insertionOrder = buildInsertOrder(numPending, jacSeq);
     // Step 3: insert pending elements one by one
-    for (size_t i = 0; i < insertionOrder.size(); ++i) {
+    for (size_t i = 0; i < insertionOrder.size(); ++i) 
+    {
         int pendIdx = insertionOrder[i];
         // count how many smaller pending elements where already inserted (main chain grows with each insertion)
         std::vector<unsigned int>::const_iterator endIt = insertionOrder.begin() + i;
@@ -395,7 +397,6 @@ size_t PmergeMe::computeUsefulMainEnd(int k, size_t posPending, size_t blockSize
     return usefulEnd;
 }
 
-
 //! Step 2.4.6
 size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, unsigned int value, size_t blockSize, size_t numBlocks) {
     size_t left = 0; // inclusive
@@ -413,240 +414,3 @@ size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, uns
     }
     return left * blockSize;
 }
-
-/**
- * Ford-Johnson algorithm implementation for std::vector.
- * 
- * This is the core implementation of the Ford-Johnson merge-insertion sort algorithm.
- * The algorithm works in two main phases:
- * 
- * Phase 1: Recursive Pair Sorting
- * - Compare pairs of elements by their last elements
- * - Swap pairs if necessary to establish partial order
- * - Recursively sort larger blocks
- * 
- * Phase 2: Optimal Insertion
- * - Use Jacobsthal sequence to determine insertion order
- * - Insert pending elements using binary search
- * - Achieve theoretical minimum comparisons
- * 
- * Example with input [3,1,4,1,5]:
- * Phase 1: Compare pairs -> [1,3], [1,4], [5] -> Main chain: [1,3,5], Pending: [1,4]
- * Phase 2: Insert pending using Jacobsthal order -> Final: [1,1,3,4,5]
- * 
- * @param input Vector to sort
- * @return Sorted vector
- */
-std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigned int>& input) {
-    std::vector<unsigned int> vec = input;
-    if (vec.size() <= 1) // Already sorted
-        return vec;
-
-    // Phase 1: Recursively sort pairs of blocks
-    // This establishes a partial order by comparing last elements of blocks
-    int recDepth = sortPairsRecursivelyVec(vec, 1);
-    int maxPending = vec.size() / 2 + 1; // '+1' to accommodate for potential leftover
-    std::vector<unsigned int> jacSeq = getJacobsthalIndexes(maxPending);
-
-    // Phase 2: Insert pending elements using optimal order
-    // Work backwards through recursion levels, inserting pending blocks
-    while (recDepth > 0) {
-        int blockSize = 1u << (recDepth - 1); // '1<<n' -> '2^n' (blockSize doubles each level)
-        int numBlocks = vec.size() / blockSize;
-        int numPending = getNumPending(numBlocks);
-
-        if (numPending > 1) // no need to insert anything if there's only 1 pending element
-            insertPendingBlocksVec(vec, blockSize, numPending, jacSeq);
-
-        --recDepth;
-    }
-
-    return vec;
-}
-
-/**
- * Recursively sorts pairs of blocks in a vector.
- * 
- * This is Phase 1 of the Ford-Johnson algorithm. It compares pairs of blocks
- * by their last elements and swaps them if necessary. The recursion continues
- * until we have a single block or no more pairs to compare.
- * 
- * How it works:
- * 1. Start with blockSize = 1 (individual elements)
- * 2. Compare adjacent pairs by their last elements
- * 3. Swap pairs if the first block's last element > second block's last element
- * 4. Double the blockSize and recurse
- * 
- * Example with [3,1,4,1,5]:
- * Level 1 (blockSize=1): Compare 3>1? Yes -> swap -> [1,3,4,1,5]
- *                       Compare 4>1? Yes -> swap -> [1,3,1,4,5]
- * Level 2 (blockSize=2): Compare [1,3] vs [1,4] -> 3>1? Yes -> swap -> [1,1,3,4,5]
- * 
- * @param vec Vector to sort (modified in place)
- * @param recDepth Current recursion depth (starts at 1)
- * @return Recursion depth where the last comparison occurred
- */
-int PmergeMe::sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDepth) {
-    int blockSize = 1u << (recDepth - 1); // blockSize doubles each recursion: 1 -> 2 -> 4 -> ...
-    int numBlocks = vec.size() / blockSize; // number of blocks to process
-
-    if (numBlocks <= 1) // base case, no more blocks to compare with one another
-        return recDepth - 1; // returns recursion level in which the last comparison took place
-
-    // Iterate over all adjacent block pairs
-    for (size_t i = 0; i + 2*blockSize - 1 < vec.size(); i += 2*blockSize) {
-        // Compare the last element of the two blocks, swap blocks if needed
-        comparison_count++;
-        if (vec[i + blockSize - 1] > vec[i + 2*blockSize - 1]) {
-            // Swap the two blocks using std::swap_ranges
-            std::swap_ranges(vec.begin() + i, vec.begin() + i + blockSize, vec.begin() + i + blockSize);
-        }
-    }
-
-    return sortPairsRecursivelyVec(vec, recDepth + 1);
-}
-
-/**
- * Inserts pending blocks into the main chain for vector.
- * 
- * This is Phase 2 of the Ford-Johnson algorithm. It uses the Jacobsthal
- * sequence to determine the optimal insertion order and inserts each pending block
- * using binary search to minimize comparisons.
- * 
- * How it works:
- * 1. Rearrange the vector to separate main chain from pending elements
- * 2. Build insertion order using Jacobsthal sequence
- * 3. For each pending block, find its optimal insertion position using binary search
- * 4. Move the block to its correct position using std::rotate
- * 
- * Example with main chain [1,3,5] and pending [2,4]:
- * Insertion order from Jacobsthal: [2, 4] (or [1, 2] if using indices)
- * Insert 2: binary search finds position 1 -> [1,2,3,5]
- * Insert 4: binary search finds position 3 -> [1,2,3,4,5]
- * 
- * @param vec Vector containing main chain and pending blocks
- * @param blockSize Size of each block
- * @param numPending Number of pending blocks to insert
- * @param jacSeq Jacobsthal sequence for determining insertion order
- */
-void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq) {
-    // Step 1: Separate main chain from pending elements
-    int posPending = rearrangeVec(vec, blockSize);
-    
-    // Step 2: Build optimal insertion order using Jacobsthal sequence
-    std::vector<unsigned int> insertionOrder = buildInsertOrder(numPending, jacSeq);
-
-    // Step 3: Insert each pending block in the optimal order
-    for (size_t i = 0; i < insertionOrder.size(); ++i) {
-        int pendIdx = insertionOrder[i];
-        std::vector<unsigned int>::const_iterator endIt = insertionOrder.begin() + i;
-        size_t numMovedBefore = countSmallerPending(insertionOrder, endIt, pendIdx);
-
-        // Compute start and end indices for the pending block
-        size_t start = posPending + (pendIdx - 1 - numMovedBefore) * blockSize;
-        size_t end = start + blockSize;
-
-        // Step 4: Find optimal insertion position using binary search
-        int k = computeK(pendIdx, jacSeq);
-        size_t usefulMainElements = computeUsefulMainEnd(k, posPending, blockSize);
-
-        size_t insertPos = (pendIdx != 1)
-                          ? binaryInsertBlockVec(vec, vec[end-1], blockSize, usefulMainElements)
-                          : 0; // first pending element can be inserted right away
-
-        // Step 5: Move the block to its correct position
-        if (insertPos < start) // do nothing when insertPos == start
-            std::rotate(vec.begin() + insertPos, vec.begin() + start, vec.begin() + end);
-
-        posPending += blockSize; // main chain grew by one block
-    }
-}
-
-/**
- * Binary search to find insertion position for a block in vector.
- * 
- * This function performs a binary search on the main chain to find the optimal
- * position to insert a pending block. It compares the last element of the pending
- * block with the last elements of main chain blocks.
- * 
- * How it works:
- * 1. Use binary search on the main chain blocks
- * 2. Compare the pending block's last element with each block's last element
- * 3. Find the position where the pending block should be inserted
- * 4. Return the position in terms of element index (not block index)
- * 
- * Example: Main chain blocks: [1,3], [5,7], [9,11] (last elements: 3, 7, 11)
- *          Pending block: [4,6] (last element: 6)
- *          Binary search: 6 < 7? Yes -> search left half
- *                        6 < 3? No -> insert after first block
- *          Result: position 2 (after [1,3])
- * 
- * @param vec Vector containing the main chain
- * @param value Last element of the block to insert
- * @param blockSize Size of each block
- * @param numBlocks Number of blocks in the main chain
- * @return Position where the block should be inserted
- */
-size_t PmergeMe::binaryInsertBlockVec(const std::vector<unsigned int>& vec, unsigned int value, size_t blockSize, size_t numBlocks) {
-    size_t left = 0; // inclusive
-    size_t right = numBlocks; // exclusive
-
-    while (left < right) {
-        size_t mid = (left + right) / 2;
-        unsigned int midValue = vec[(blockSize - 1) + mid*blockSize]; // Last element of block at position mid
-
-        comparison_count++;
-        if (value < midValue)
-            right = mid;
-        else
-            left = mid + 1;
-    }
-    return left * blockSize; // Convert block position to element position
-}
-
-/**
- * Rearranges a vector to separate main chain from pending elements.
- * 
- * In the Ford-Johnson algorithm, after the recursive pair sorting phase,
- * we need to separate the "main chain" (a-blocks) from "pending" elements (b-blocks).
- * 
- * How it works:
- * 1. Iterate through all elements in the vector
- * 2. Use isMainChain() to determine if an element belongs to main chain or pending
- * 3. Collect main chain elements first, then pending elements
- * 4. Return the position where pending elements start
- * 
- * Example with blockSize=2 and vector [1,3,2,4,5]:
- * Block 0: [1,3] (even block -> pending)
- * Block 1: [2,4] (odd block -> main chain)  
- * Block 2: [5] (leftover -> pending)
- * Result: mainChain=[2,4], pending=[1,3,5] -> [2,4,1,3,5]
- * Return: posPending=2 (where pending elements start)
- * 
- * @param vec Vector to rearrange (modified in place)
- * @param blockSize Size of each block
- * @return Position where pending elements start
- */
-int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize) {
-    std::vector<unsigned int> mainChain, pending;
-    size_t vecSize = vec.size();
-    int posPending;
-
-    mainChain.reserve(vecSize);
-    pending.reserve(vecSize);
-    // Separate main-chain and pending elements
-    for (size_t i = 0; i < vecSize; ++i) {
-        if (isMainChain(i, blockSize, vecSize))
-            mainChain.push_back(vec[i]);
-        else
-            pending.push_back(vec[i]);
-    }
-
-    // Combine main chain and pending elements
-    posPending = mainChain.size();
-    mainChain.insert(mainChain.end(), pending.begin(), pending.end());
-    vec = mainChain;
-
-    return posPending;
-}
-

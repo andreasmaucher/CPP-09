@@ -1,5 +1,5 @@
 NAME = PmergeMe
-SOURCES = main.cpp PmergeMe.cpp utils.cpp
+SOURCES = main.cpp PmergeMe.cpp utils.cpp vector.cpp
 		
 OBJS = $(SOURCES:.cpp=.o)
 
