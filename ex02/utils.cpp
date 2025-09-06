@@ -97,3 +97,35 @@ void PmergeMe::printSequence(const std::string& label, const std::deque<unsigned
     }
     std::cout << std::endl;
 }
+
+// Check if vector is sorted in ascending order
+bool PmergeMe::isSorted(const std::vector<unsigned int>& vec) 
+{
+    for (size_t i = 1; i < vec.size(); ++i) {
+        if (vec[i] < vec[i-1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Check if deque is sorted in ascending order
+bool PmergeMe::isSorted(const std::deque<unsigned int>& deq) 
+{
+    for (size_t i = 1; i < deq.size(); ++i) {
+        if (deq[i] < deq[i-1]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+// Verify both containers are sorted and print results
+void PmergeMe::verifySorting(const std::vector<unsigned int>& vec, const std::deque<unsigned int>& deq) 
+{
+    bool vector_sorted = isSorted(vec);
+    bool deque_sorted = isSorted(deq);
+    
+    std::cout << "Vector is sorted: " << (vector_sorted ? "✓ YES" : "✗ NO") << std::endl;
+    std::cout << "Deque is sorted:  " << (deque_sorted ? "✓ YES" : "✗ NO") << std::endl;
+}

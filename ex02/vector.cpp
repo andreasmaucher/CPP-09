@@ -13,7 +13,7 @@ std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigne
     // Step 2: calculate maxPending elements to know where to cut off Jacobsthal Sequence
     int maxPending = vec.size() / 2 + 1; // '+1' to accommodate for potential leftover
     // Step 3: calculate Jacobsthal sequence
-    std::vector<unsigned int> jacSeq = getJacobsthalIndexes(maxPending);
+    std::vector<unsigned int> JTseq = getJacobsthalIndexes(maxPending);
 
     while (recDepth > 0) 
     {
@@ -23,7 +23,7 @@ std::vector<unsigned int> PmergeMe::sortVecFordJohnson(const std::vector<unsigne
 
         // Step 4: insert pending elements into the sequence
         if (numPending > 1) // no need to insert anything if there's only 1 pending element
-            insertPendingBlocksVec(vec, blockSize, numPending, jacSeq);
+            insertPendingBlocksVec(vec, blockSize, numPending, JTseq);
         --recDepth;
     }
     return vec;
@@ -91,38 +91,37 @@ int PmergeMe::sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDep
  * @param vec Vector containing main chain and pending blocks
  * @param blockSize Size of each block
  * @param numPending Number of pending blocks to insert
- * @param jacSeq Jacobsthal sequence for determining insertion order
+ * @param JTseq Jacobsthal sequence for determining insertion order
  */
 // inserts pending elements into the main chain using the optimal Ford Johnson insertion order
-void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq) 
+void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockSize, int numPending, const std::vector<unsigned int>& JTseq) 
 {
     // Step 1: Separate main chain from pending elements
-    int posPending = rearrangeVec(vec, blockSize);
+    int pendingPos = sortMainPendb2b(vec, blockSize);
     // Step 2: create optimal insertion sequence using Jacobsthal numbers
-    std::vector<unsigned int> insertionOrder = buildInsertOrder(numPending, jacSeq);
+    std::vector<unsigned int> insertionOrder = buildInsertOrder(numPending, JTseq);
     // Step 3: insert pending elements one by one
     for (size_t i = 0; i < insertionOrder.size(); ++i) 
     {
-        int pendIdx = insertionOrder[i];
+        int pendIndex = insertionOrder[i];
         // count how many smaller pending elements where already inserted (main chain grows with each insertion)
         std::vector<unsigned int>::const_iterator endIt = insertionOrder.begin() + i;
-        size_t numMovedBefore = countSmallerPending(insertionOrder, endIt, pendIdx);
+        size_t numMovedBefore = countSmallerPending(insertionOrder, endIt, pendIndex);
 
         // find exact start/end positions of the pending block to insert
-        size_t start = posPending + (pendIdx - 1 - numMovedBefore) * blockSize;
+        size_t start = pendingPos + (pendIndex - 1 - numMovedBefore) * blockSize;
         size_t end = start + blockSize;
 
         // calculate how many main chain elements to consider for binary search (limit comparisons to relevant ones)
-        int k = computeK(pendIdx, jacSeq);
-        size_t usefulMainElements = computeUsefulMainEnd(k, posPending, blockSize);
+        int k = computeK(pendIndex, JTseq);
+        size_t usefulMainElements = computeUsefulMainEnd(k, pendingPos, blockSize);
         // use binary search to find optimal insertion position
-        size_t insertPos = (pendIdx != 1)
-                          ? binaryInsertBlockVec(vec, vec[end-1], blockSize, usefulMainElements)
-                          : 0; // first pending element can be inserted right away
+        // first pending element can be inserted right away
+        size_t insertPos = (pendIndex != 1) ? binaryInsertBlockVec(vec, vec[end-1], blockSize, usefulMainElements) : 0;
         // insert the pending block at the correct position (only if insertion point != current pos)
         if (insertPos < start) // do nothing when insertPos == start
             std::rotate(vec.begin() + insertPos, vec.begin() + start, vec.begin() + end);
-        posPending += blockSize; // main chain grew by one block
+        pendingPos += blockSize; // main chain grew by one block
     }
 }
 
@@ -145,17 +144,17 @@ void PmergeMe::insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockS
  * Block 1: [2,4] (odd block -> main chain)  
  * Block 2: [5] (leftover -> pending)
  * Result: mainChain=[2,4], pending=[1,3,5] -> [2,4,1,3,5]
- * Return: posPending=2 (where pending elements start)
+ * Return: pendingPos=2 (where pending elements start)
  * 
  * @param vec Vector to rearrange (modified in place)
  * @param blockSize Size of each block
  * @return Position where pending elements start
  */
-int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize) 
+int PmergeMe::sortMainPendb2b(std::vector<unsigned int>& vec, int blockSize) 
 {
     std::vector<unsigned int> mainChain, pending;
     size_t vecSize = vec.size();
-    int posPending;
+    int pendingPos;
 
     mainChain.reserve(vecSize);
     pending.reserve(vecSize);
@@ -168,11 +167,11 @@ int PmergeMe::rearrangeVec(std::vector<unsigned int>& vec, int blockSize)
     }
 
     // Combine main chain and pending elements
-    posPending = mainChain.size();
+    pendingPos = mainChain.size();
     mainChain.insert(mainChain.end(), pending.begin(), pending.end());
     vec = mainChain;
 
-    return posPending;
+    return pendingPos;
 }
 
 //! V 2.2.2
