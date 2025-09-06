@@ -379,41 +379,6 @@ size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, uns
     return left * blockSize;
 }
 
-
-void PmergeMe::binaryInsertDeque(std::deque<unsigned int>& chain, unsigned int value) {
-    // Manual binary search to control comparison counting
-    std::deque<unsigned int>::iterator left = chain.begin();
-    std::deque<unsigned int>::iterator right = chain.end();
-    
-    while (left < right) {
-        std::deque<unsigned int>::iterator mid = left + (right - left) / 2;
-        comparison_count++; // Count only this comparison
-        if (value < *mid) {
-            right = mid;
-        } else {
-            left = mid + 1;
-        }
-    }
-    chain.insert(left, value);
-}
-
-void PmergeMe::binaryInsertVector(std::vector<unsigned int>& chain, unsigned int value) {
-    // Manual binary search to control comparison counting
-    std::vector<unsigned int>::iterator left = chain.begin();
-    std::vector<unsigned int>::iterator right = chain.end();
-    
-    while (left < right) {
-        std::vector<unsigned int>::iterator mid = left + (right - left) / 2;
-        comparison_count++; // Count only this comparison
-        if (value < *mid) {
-            right = mid;
-        } else {
-            left = mid + 1;
-        }
-    }
-    chain.insert(left, value);
-}
-
 // Static methods for comparison counting
 int PmergeMe::getComparisonCount() {
     return comparison_count;

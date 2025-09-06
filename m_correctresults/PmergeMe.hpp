@@ -34,10 +34,6 @@ private:
     
     std::vector<unsigned int> getJacobsthalIndexes(unsigned int n);
     std::vector<unsigned int> buildInsertOrder(int numPending, const std::vector<unsigned int>& jacSeq);
-
-    // Binary insert functions (used in recursive implementations)
-    void binaryInsertDeque(std::deque<unsigned int>& chain, unsigned int value);
-    void binaryInsertVector(std::vector<unsigned int>& chain, unsigned int value);
     
     // Recursive algorithm implementations (not used in main flow but still implemented)
     /* std::deque<unsigned int> mergeInsertSortRecursiveDeque(const std::deque<unsigned int>& input);
