@@ -1,48 +1,78 @@
 #ifndef PMERGEME_HPP
 #define PMERGEME_HPP
 
-// Debug macro - comment out to disable all debug output
-#define DEBUG(x) std::cout << x << std::endl
-// #define DEBUG(x)  // Uncomment this line and comment the above to disable debug
-
-#include <vector>
 #include <deque>
+#include <vector>
 #include <string>
+#include <exception>
 #include <iostream>
-#include <sstream>
-#include <ctime>
-#include <algorithm>
 #include <stdexcept>
+#include <sstream>
+#include <cstdio>
+#include <algorithm>
+#include <cmath>
 
-class PmergeMe 
+class PmergeMe
 {
-    private:
-        std::vector<int> vecNumbers;  // first container
-        std::deque<int> deqNumbers;   // second container
-        
-        // private helper methods
-        bool isValidNumber(const std::string& str) const;
-        void parseArguments(int ac, char **av);
+private:
+    std::deque<unsigned int> pmerge_deque;
+    std::vector<unsigned int> pmerge_vector;
 
-    public:
-        PmergeMe();
-        ~PmergeMe();
-        
-        // Step 1: Create pairs from consecutive elements
-        void createPairs(std::vector<std::pair<int, int> >& pairs, std::vector<int>& remaining) const;
-        
-        // Step 1: Recursively sort pairs by their larger elements
-        void sortPairsRecursively(std::vector<std::pair<int, int> >& pairs, int recursionDepth = 1) const;
-        
-        // Step 1: Main function to test pair creation
-        void runAlgo(int ac, char **av);
+    // Copy constructor
+    PmergeMe(const PmergeMe &other);
+    // Copy assignment operator
+    PmergeMe &operator=(const PmergeMe &other);
+    
+    // Static counter for comparisons
+    static int comparison_count;
 
-        // Utility function to print sequences
-        void printSequence(const std::string& label, const std::vector<int>& sequence) const;
-        void printSequence(const std::string& label, const std::deque<int>& sequence) const;
-        
-        // Utility function to reconstruct containers from pairs
-        void reconstructContainers(const std::vector<std::pair<int, int> >& pairs, const std::vector<int>& remaining);
+    void checkArgs(int argc, char *argv[]);
+    
+    // Debug printout functions
+    void printSequence(const std::string& label, const std::vector<unsigned int>& seq);
+    void printSequence(const std::string& label, const std::deque<unsigned int>& seq);
+    
+    std::vector<unsigned int> getJacobsthalIndexes(unsigned int n);
+    std::vector<unsigned int> buildInsertOrder(int numPending, const std::vector<unsigned int>& jacSeq);
+    
+    // Recursive algorithm implementations (not used in main flow but still implemented)
+    /* std::deque<unsigned int> mergeInsertSortRecursiveDeque(const std::deque<unsigned int>& input);
+    std::vector<unsigned int> mergeInsertSortRecursiveVector(const std::vector<unsigned int>& input); */
+
+    // Proper Ford-Johnson in-place algorithm methods
+    std::vector<unsigned int> sortVecFordJohnson(const std::vector<unsigned int>& input);
+    std::deque<unsigned int> sortDequeFordJohnson(const std::deque<unsigned int>& input);
+    int sortPairsRecursivelyVec(std::vector<unsigned int>& vec, int recDepth);
+    void insertPendingBlocksVec(std::vector<unsigned int>& vec, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq);
+    size_t binaryInsertBlockVec(const std::vector<unsigned int>& vec, unsigned int value, size_t blockSize, size_t numBlocks);
+    int rearrangeVec(std::vector<unsigned int>& vec, int blockSize);
+    bool isMainChain(int index, int blockSize, int totalSize);
+    
+    // Deque Ford-Johnson functions
+    int sortPairsRecursivelyDeque(std::deque<unsigned int>& deq, int recDepth);
+    void insertPendingBlocksDeque(std::deque<unsigned int>& deq, int blockSize, int numPending, const std::vector<unsigned int>& jacSeq);
+    size_t binaryInsertBlockDeque(const std::deque<unsigned int>& deq, unsigned int value, size_t blockSize, size_t numBlocks);
+    int rearrangeDeque(std::deque<unsigned int>& deq, int blockSize);
+    int getNumPending(int numBlocks);
+    size_t computeUsefulMainEnd(int k, size_t posPending, size_t blockSize);
+    int computeK(int pendIdx, const std::vector<unsigned int>& jacSeq);
+    size_t countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, int pendIdx);
+
+public:
+    // Constructor
+    PmergeMe(void);
+    // Deconstructor
+    ~PmergeMe(void);
+
+    // main function running the whole algo
+    void runMergeInsertSort(int argc, char *argv[]);
+    
+    // Static method to get comparison count
+    static int getComparisonCount();
+    static void resetComparisonCount();
+    
+    // Calculate maximum comparisons according to Ford-Johnson algorithm
+    static int maxComparisonsFJ(int n);
 };
 
 #endif
