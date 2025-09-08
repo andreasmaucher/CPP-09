@@ -363,18 +363,16 @@ size_t PmergeMe::countSmallerPending(const std::vector<unsigned int>& insertionO
 // determine which group of pending elements is currently being processed
 size_t PmergeMe::computeK(unsigned int pendIndex, const std::vector<unsigned int>& JTseq) 
 {
-    // Find which group (k) the pendIndex belongs to
     for (unsigned int k = 0; k < JTseq.size(); ++k)
     {
         if (pendIndex <= JTseq[k])
             return static_cast<int>(k);
     }
-    
-    // If pendIndex is larger than all JTseq values, return the last index
+    // if pendIndex is larger than all JTseq values, return the last index
     return JTseq.size();
 }
 
-//! Step 2.4.5
+// calculate maximum number of blocks in the main chain there are relevant for inserting the pending element
 size_t PmergeMe::computeUsefulMainEnd(int k, size_t pendingPos, size_t blockSize) 
 {
     size_t usefulEnd = (1u << k) - 1; // 2^k - 1 blocks allowed according to FJ
@@ -386,15 +384,17 @@ size_t PmergeMe::computeUsefulMainEnd(int k, size_t pendingPos, size_t blockSize
     return usefulEnd;
 }
 
-//! Step 2.4.6
+// returns the postition where the new element should be inserted in the main chain
+// instead of searching each individual only searches blocks
 size_t PmergeMe::binaryInsertBlockDeque(const std::deque<unsigned int>& deq, unsigned int value, size_t blockSize, size_t numBlocks) 
 {
-    size_t left = 0; // inclusive
-    size_t right = numBlocks; // exclusive
+    // define the search range
+    size_t left = 0;
+    size_t right = numBlocks;
 
     while (left < right) {
-        size_t mid = (left + right) / 2;
-        unsigned int midValue = deq[(blockSize - 1) + mid*blockSize];
+        size_t mid = (left + right) / 2; // find the middle block
+        unsigned int midValue = deq[(blockSize - 1) + mid*blockSize]; // get the last value of the middle block
 
         comparison_count++;
         if (value < midValue)
