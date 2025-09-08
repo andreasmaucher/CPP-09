@@ -68,7 +68,7 @@ public:
     static void resetComparisonCount();
     static int maxComparisonsFJ(int n);
     
-    // Sorting verification functions
+    // sorting verification functions
     static bool isSorted(const std::vector<unsigned int>& vec);
     static bool isSorted(const std::deque<unsigned int>& deq);
     static void verifySorting(const std::vector<unsigned int>& vec, const std::deque<unsigned int>& deq);
