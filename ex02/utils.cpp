@@ -20,7 +20,7 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other)
    return *this;
 }
 
-// This tracks the total number of comparisons made during sorting
+// tracks the total number of comparisons made during sorting
 int PmergeMe::comparison_count = 0;
 
 int PmergeMe::getComparisonCount() 
@@ -52,7 +52,7 @@ int PmergeMe::maxComparisonsFJ(int n)
 {
     int sum = 0;
     for (int k = 1; k <= n; ++k) {
-        double value = (3.0 / 4.0) * k; // 3k/4
+        double value = (3.0 / 4.0) * k;
         sum += static_cast<int>(ceil(log2(value)));
     }
     return sum;
@@ -98,7 +98,7 @@ void PmergeMe::printSequence(const std::string& label, const std::deque<unsigned
     std::cout << std::endl;
 }
 
-// Check if vector is sorted in ascending order
+// check if vector is sorted in ascending order
 bool PmergeMe::isSorted(const std::vector<unsigned int>& vec) 
 {
     for (size_t i = 1; i < vec.size(); ++i) {
@@ -109,7 +109,7 @@ bool PmergeMe::isSorted(const std::vector<unsigned int>& vec)
     return true;
 }
 
-// Check if deque is sorted in ascending order
+// check if deque is sorted in ascending order
 bool PmergeMe::isSorted(const std::deque<unsigned int>& deq) 
 {
     for (size_t i = 1; i < deq.size(); ++i) {
@@ -120,12 +120,12 @@ bool PmergeMe::isSorted(const std::deque<unsigned int>& deq)
     return true;
 }
 
-// Verify both containers are sorted and print results
+// verify both containers are sorted and print results
 void PmergeMe::verifySorting(const std::vector<unsigned int>& vec, const std::deque<unsigned int>& deq) 
 {
     bool vector_sorted = isSorted(vec);
     bool deque_sorted = isSorted(deq);
     
-    std::cout << "Vector is sorted: " << (vector_sorted ? "✓ YES" : "✗ NO") << std::endl;
-    std::cout << "Deque is sorted:  " << (deque_sorted ? "✓ YES" : "✗ NO") << std::endl;
+    std::cout << "Vector is sorted: " << (vector_sorted ? "YES" : "NO") << std::endl;
+    std::cout << "Deque is sorted:  " << (deque_sorted ? "YES" : "NO") << std::endl;
 }
