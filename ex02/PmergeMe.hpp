@@ -49,10 +49,10 @@ private:
     std::vector<unsigned int> getJacobsthalIndexes(unsigned int n);
     std::vector<unsigned int> buildInsertOrder(int numPending, const std::vector<unsigned int>& JTseq);
     size_t computeUsefulMainEnd(int k, size_t pendingPos, size_t blockSize);
-    int computeK(int pendIndex, const std::vector<unsigned int>& JTseq);
+    size_t computeK(unsigned int pendIndex, const std::vector<unsigned int>& JTseq);
     bool isMainChain(int index, int blockSize, int totalSize);
     int getNumPending(int numBlocks);
-    size_t countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, int pendIndex);
+    size_t countSmallerPending(const std::vector<unsigned int>& insertionOrder, std::vector<unsigned int>::const_iterator endIt, unsigned int pendIndex);
 
 public:
     // Constructor
