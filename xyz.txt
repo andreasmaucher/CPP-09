@@ -1,1 +1,0 @@
-- if there is only 1 pending block no insertion since this means the main chain is already sorted and that it is in its correct position
