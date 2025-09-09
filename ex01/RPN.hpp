@@ -9,6 +9,9 @@
 /*
 Why using a stack container for this exercise:
 
+LIFO is the fundamental principle for stacks
+-> last item you put in is the first item you take out!
+
 In computer science, the UPN is of interest because it enables stack-based processing: 
 operands are placed on the stack when read, an operator retrieves the number of operands 
 from the stack that corresponds to its arity, and places the result of the operation back 

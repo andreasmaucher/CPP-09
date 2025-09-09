@@ -1,11 +1,5 @@
 #include "PmergeMe.hpp"
 
-//! add more debug printouts!
-
-//! memory allocation questions (check eval sheet)
-
-//! make sure vector is same as deque
-
 int main(int ac, char **av)
 {
     if (ac < 2) 

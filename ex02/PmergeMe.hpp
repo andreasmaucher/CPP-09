@@ -12,6 +12,24 @@
 #include <algorithm>
 #include <cmath>
 
+/*
+Container usage justification:
+
+Vector (like a c array but with automatic memory management):
+    - fast random access perfect for algorithms
+    - continguous memory layout
+
+Deque (double-ended queue, stored in multiple fixed-size chunks):
+    - efficient end operations
+    - show how it is less efficient than vector
+
+Why is deque so much slower:
+- vector has all elements in one continguous block (all in one cache line)
+- random access way faster for vector
+- vector allows direct memory access (deque needs chunk lookup and then calculate the offset)
+-> biggest reason for the slower performance are the multitude of random access operations
+*/
+
 class PmergeMe
 {
 private:

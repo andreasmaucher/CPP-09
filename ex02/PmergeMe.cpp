@@ -195,22 +195,6 @@ int PmergeMe::getNumPending(int numBlocks)
     return numPending;
 }
 
-/*
-Calculation Example:
-
-Sequence: 11 2 17 0 16 8 6 15 10 3 21 1 18 9 14 19 12 5 4 20 13
-
-int pendingPos = sortMainPendb2b(deq, 4);
-After Phase 1: [2, 11, 0, 17, 8, 16, 6, 15, 3, 10, 1, 21, 9, 18, 14, 19, 5, 12, 4, 20, 13]
-After rearrange: [2, 11, 0, 17][8, 16, 6, 15][3, 10, 1, 21][9, 18, 14, 19][5, 12, 4, 20][13]
-pendingPos = 4 (main chain ends at position 4)
-
-std::vector<unsigned int> insertionOrder = buildInsertOrder(3, JTseq);
-JTseq = [0, 1, 3, 5, 11, 21]
-insertionOrder = [1, 3, 2] (Jacobsthal-based optimal order)
-
-//! missing stuff
-*/
 // inserts pending elements into the main chain using the optimal Ford Johnson insertion order
 void PmergeMe::insertPendingBlocksDeque(std::deque<unsigned int>& deq, int blockSize, int numPending, const std::vector<unsigned int>& JTseq) 
 {

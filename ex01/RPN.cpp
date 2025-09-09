@@ -7,11 +7,13 @@ RPN::RPN() {}
 RPN::~RPN() {}
 
 // check if token is one of the allowed operators
-bool RPN::isOperator(const std::string& token) const {
+bool RPN::isOperator(const std::string& token) const 
+{
     return (token == "+" || token == "-" || token == "*" || token == "/");
 }
 
-bool RPN::isNumber(const std::string& token) const {
+bool RPN::isNumber(const std::string& token) const 
+{
     // Check if token is a single digit number
     if (token.length() != 1) {
         return false;
@@ -25,7 +27,8 @@ bool RPN::isNumber(const std::string& token) const {
 }
 
 // function takes two numbers and an operator and then performs the calculation
-int RPN::performOperation(int a, int b, const std::string& op) const {
+int RPN::performOperation(int a, int b, const std::string& op) const 
+{
     // Perform the specified operation on two numbers
     if (op == "+") {
         return a + b;
@@ -45,7 +48,8 @@ int RPN::performOperation(int a, int b, const std::string& op) const {
 }
 
 // function takes a single token and processes it according to RPN rules
-void RPN::processToken(const std::string& token) {
+void RPN::processToken(const std::string& token) 
+{
     if (isNumber(token)) {
         int num = token[0] - '0';  // Convert char to int
         // if it's a number, push it onto the stack
@@ -72,7 +76,8 @@ void RPN::processToken(const std::string& token) {
 }
 
 // function takes a complete RPN input string and processes the calculation
-int RPN::calculate(const std::string& expression) {
+int RPN::calculate(const std::string& expression) 
+{
     // empty the stack for new calculation
     while (!numbers.empty()) {
         numbers.pop();
