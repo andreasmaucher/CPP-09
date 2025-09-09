@@ -1,0 +1,39 @@
+Insertion:
+ok now let's start with the next step:
+- try to keep changes to existing code minimal and don't suggest changes to my comments
+- read through the section called steps 2 and 3: @https://dev.to/emuminov/human-explanation-and-step-by-step-visualisation-of-the-ford-johnson-algorithm-5g91 
+- implement: take the full sequence including remaining as a starting base where we left off. We now compare the first 4 pairs with the next 4 pairs so the same grouping like in the recursion level 4 step meaning: 6 15 8 16 2 11 0 17 with 9 18 14 19 3 10 1 21. since 17 < 21 we keep the order, otherwise we would switch it. the remaining numbers. after this sorting add the numbers of both groups to a container or whatever structure makes sense called 'mainSequence'. all the other ints are added to another container called nonParticipating meaning 5 12 4 20 7 13. they are added there and not in main because they cant even build a full group. Now update the original two vectors with the new sequence meaning 6 15 8 16 2 11 0 17 9 18 14 19 3 10 1 21 5 12 4 20 7 13 (only the same because 17 < 21 but with more numbers there will definetly be changes at this step!).  This step was on recursion level 4. Now we go to recursion level 3 meaning each group consists of two pairs so we take 6 15 8 16 and compare it to 2 11 0 17 , which is fine since 16 < 17.
+In this step I realized that we need to add an important distintion: When we first sorted the pairs at the very beginning of this whole exercise where we give each group or each pair another lable like a1/b1. The logic is as follows we always start with b1 for the first group so in recursion level 3 this would be 6 15 8 16 after comes 2 11 0 17 as a1 then 9 18 14 19 as b2 then 3 10 1 21 as a2 and last 5 12 4 20 as b3 and so on if we would have more numbers. The mainSequence always consists of b1 and all a labels. The pending container consists of the rest of b labels So for this step there will be two elements in pending: b2 (9 18 14 19) and b3 (5 12 4 20). 7 13 will be added to the nonparticipating container.  can you try to implement this until here and then we start with the insertion algo for the pending elements? are there any questions so far? please think hard and let me know if you need clarification BEFORE suggesting code to me!
+
+Let me give you some additional clarifications:
+
+Recursion Level 4:
+Starting point: We have the sequence from Step 1: 6 15 8 16 2 11 0 17 9 18 14 19 3 10 1 21 5 12 4 20 7 13
+Recursion level 4 comparison: Compare first 4 pairs vs next 4 pairs:
+Group 1: 6 15 8 16 2 11 0 17 (b1)
+Group 2: 9 18 14 19 3 10 1 21 (a1)
+Compare last elements: 17 < 21, so keep order
+Pending: empty (meaning no insertions here yet)
+Non-participating: 5 12 4 20 7 13 (can't form a single element)
+
+Sequence after Recursion 4: 6 15 8 16 2 11 0 17 9 18 14 19 3 10 1 21 5 12 4 20 7 13
+
+Recursion Level 3:
+Starting point: We have the sequence from Step 1: (6 15 8 16) b1 (2 11 0 17) a1 (9 18 14 19) b2 (3 10 1 21) a2 (5 12 4 20) b3 7 13
+Recursion level 3 comparison: each element consists of 4 numbers. 
+Main: b1 and all a labels (a1 + a2)
+Pending: b2 + b3 (here we will need insertions which I will explain in the next step.
+Non-participating: 7 13 (can't form a single element)
+
+Recursion level 3: You mentioned comparing 6 15 8 16 vs 2 11 0 17 and it's fine since 16 < 17. But these are already in the correct order from the previous step. Are we doing additional comparisons at each recursion level, or just maintaining the order we established?
+A: not 100% sure let's assume no comparisons for mainSequence and only adding them b1 and all a labels
+Labeling logic: Is the labeling always b1, a1, b2, a2, b3, a3... pattern? And mainSequence always contains b1 + all a's?
+A: Yes correct
+Group size: At recursion level 3, each group is 2 pairs (4 numbers), at level 4 it was 4 pairs (8 numbers). Is this correct?
+A: Yes this is correct!
+Non-participating: Are elements that can't form complete groups always added to nonParticipating, or is there a specific rule?
+A: always if they can't form a complete group on that specific recursion level.
+Container updates: After this step, do we update the original vecNumbers and deqNumbers with the new sequence, or do we keep them separate for the insertion phase?
+A: for now just print it I only want to go back and update the original containers after we are fully done with the insertion.
+
+Make sure to use recursion here.

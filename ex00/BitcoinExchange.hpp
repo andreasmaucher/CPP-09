@@ -8,6 +8,14 @@
 #include <sstream> // for parsing the csv file (like splitting data by comma)
 #include <cstdlib> // for std::atof()
 
+/*
+Justification for using std::map
+
+- fitting for the data structure of the csv key-value pairs (date -> btc price)
+- allows for efficient lookups
+- keeps the chronological sorting
+*/
+
 class BitcoinExchange 
 {
     private:
